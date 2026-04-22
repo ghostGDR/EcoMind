@@ -1,8 +1,8 @@
 """
-Document indexing pipeline for Henry knowledge base.
+Document indexing pipeline for EcoMind knowledge base.
 
 Orchestrates loading documents from DocumentStore and indexing them
-into HenryVectorStore for semantic search.
+into EcoMindVectorStore for semantic search.
 """
 
 from typing import List, Optional
@@ -58,7 +58,7 @@ class DocumentIndexer:
                 if 'extension' in doc.metadata:
                     doc.metadata['file_type'] = 'markdown' if doc.metadata['extension'] == '.md' else 'excel'
             
-            # Create vector index via HenryVectorStore
+            # Create vector index via EcoMindVectorStore
             index = self.vector_store.create_index(documents)
             
             print(f"Successfully indexed {self._document_count} documents")

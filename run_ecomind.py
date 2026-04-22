@@ -12,7 +12,7 @@ if __name__ == "__main__":
     import uvicorn
     
     print("=" * 60)
-    print("🚀 启动 Henry AI 电商专家系统")
+    print("🚀 启动 EcoMind AI 电商专家系统")
     print("=" * 60)
     print()
     print("📋 配置信息：")
@@ -32,6 +32,6 @@ if __name__ == "__main__":
         "src.api.main:app",
         host="127.0.0.1",
         port=8080,
-        reload=True,
+        reload=False,
         log_level="info"
     )

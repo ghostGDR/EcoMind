@@ -21,7 +21,7 @@ from src.indexing.document_indexer import DocumentIndexer
 def main():
     """Index all wiki documents into vector database."""
     print("=" * 60)
-    print("Henry Knowledge Base - Document Indexing")
+    print("EcoMind Knowledge Base - Document Indexing")
     print("=" * 60)
     
     # Initialize components

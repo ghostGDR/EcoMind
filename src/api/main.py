@@ -98,7 +98,9 @@ async def startup_event():
 async def shutdown_event():
     """Clean up resources on application shutdown"""
     logger.info("EcoMind API shutting down...")
-    # Close any open connections if needed
+    # Properly close database connections and release file locks
+    from src.api.dependencies import reset_dependencies
+    reset_dependencies()
     logger.info("Cleanup complete")
 
 

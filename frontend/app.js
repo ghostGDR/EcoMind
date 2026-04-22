@@ -266,33 +266,63 @@ async function handleOpenSettings() {
 }
 
 // Handle Settings form submission
-async function handleSaveSettings(event) {
-  event.preventDefault();
-  const form = event.target;
-  const config = {
-    llm_provider: form.llm_provider.value,
-    llm_model: form.llm_model.value,
-    llm_base_url: form.llm_base_url.value,
-    llm_api_key: form.llm_api_key.value,
-    wiki_path: form.wiki_path.value
+async function handleSaveSettings(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const settings = {
+    llm_provider: formData.get('llm_provider'),
+    llm_model: formData.get('llm_model'),
+    llm_base_url: formData.get('llm_base_url'),
+    llm_api_key: formData.get('llm_api_key'),
+    wiki_path: formData.get('wiki_path')
   };
-  
+
   try {
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.textContent = '保存中...';
-    submitBtn.disabled = true;
-    
-    await saveConfig(config);
-    
-    alert('配置已保存，系统将重新加载组件。');
-    document.getElementById('settings-modal').classList.remove('show');
+    const response = await fetch('/api/config/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+
+    if (response.ok) {
+      alert('配置保存成功，系统组件已重置。');
+      handleCloseSettings();
+      // Reload UI state if needed
+    } else {
+      const error = await response.json();
+      alert('保存失败: ' + (error.detail || '未知错误'));
+    }
   } catch (error) {
-    console.error('Error saving settings:', error);
-    alert('保存配置失败: ' + error.message);
+    console.error('Failed to save settings:', error);
+    alert('保存设置时出错');
+  }
+}
+
+async function handleReindex() {
+  if (!confirm('确定要重建知识库索引吗？这可能需要几分钟时间，且会清除现有索引。')) return;
+
+  const btn = document.getElementById('reindex-btn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '正在索引...';
+
+  try {
+    const response = await fetch('/api/documents/reindex', {
+      method: 'POST'
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert('知识库索引重建成功！');
+    } else {
+      throw new Error(result.detail || '重建失败');
+    }
+  } catch (error) {
+    console.error('Re-index error:', error);
+    alert('索引重建失败: ' + error.message);
   } finally {
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.textContent = '保存配置';
-    submitBtn.disabled = false;
+    btn.disabled = false;
+    btn.textContent = originalText;
   }
 }
 
@@ -595,6 +625,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('settings-btn').addEventListener('click', handleOpenSettings);
   document.querySelector('.close-modal').addEventListener('click', handleCloseSettings);
   document.getElementById('settings-form').addEventListener('submit', handleSaveSettings);
+  document.getElementById('reindex-btn').addEventListener('click', handleReindex);
   
   // Close modal when clicking outside
   window.addEventListener('click', (e) => {
