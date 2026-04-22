@@ -382,3 +382,70 @@ body {
         max-width: 85%;
     }
 }
+
+/* ============================================================================
+   SSE Streaming Chat Styles (Plan 07-03)
+   ============================================================================ */
+
+/* Input Disabled State */
+#message-input:disabled,
+#send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#send-btn:disabled:hover {
+  background-color: var(--primary-color); /* No hover effect when disabled */
+}
+
+/* Streaming Indicator (Typing Animation) */
+.message-streaming {
+  position: relative;
+}
+
+.message-streaming::after {
+  content: '▋';
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Smooth Scroll Behavior */
+#messages {
+  scroll-behavior: smooth;
+}
+
+/* Source Link Styling */
+.message-sources {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  max-width: fit-content;
+  line-height: 1.4;
+}
+
+.message-sources::before {
+  content: '📄 ';
+}
+
+/* Empty Conversation State */
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.empty-state::before {
+  content: '💬';
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
