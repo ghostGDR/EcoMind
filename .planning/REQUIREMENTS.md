@@ -18,11 +18,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### 检索与搜索 (Retrieval & Search)
 
-- [ ] **SEARCH-01**: Henry 基于语义理解回答问题，不只是关键词匹配
+- [x] **SEARCH-01
+**: Henry 基于语义理解回答问题，不只是关键词匹配
 - [ ] **SEARCH-02**: Henry 的每个回答都引用具体的来源文章和段落
-- [ ] **SEARCH-03**: 系统使用混合检索（语义 + 关键词），提升准确度
-- [ ] **SEARCH-04**: 系统使用智能分块策略，保持语义完整性
-- [ ] **SEARCH-05**: 用户可以搜索文章内容，找到相关文档
+- [x] **SEARCH-03
+**: 系统使用混合检索（语义 + 关键词），提升准确度
+- [x] **SEARCH-04
+**: 系统使用智能分块策略，保持语义完整性
+- [x] **SEARCH-05
+**: 用户可以搜索文章内容，找到相关文档
 
 ### 文档管理 (Document Management)
 
