@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.api.models import HealthResponse, ErrorResponse
+from src.api.routes import chat, conversations, documents
 import logging
 
 # Configure logging
@@ -25,7 +26,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Exception handlers for structured error responses
 
@@ -75,6 +75,12 @@ async def shutdown_event():
     logger.info("Henry API shutting down...")
     # Close any open connections if needed
     logger.info("Cleanup complete")
+
+
+# Include routers
+app.include_router(chat.router)
+app.include_router(conversations.router)
+app.include_router(documents.router)
 
 
 # API endpoints
