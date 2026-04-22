@@ -107,18 +107,13 @@ Plans:
   2. WebSocket/SSE 接口支持流式响应（实时显示 Henry 的回答）
   3. API 请求验证和错误处理正常工作
   4. API 文档自动生成并可访问
-**Plans**: TBD
+**Plans**: 4 plans
 
-### Phase 7: Frontend UI - Chat Interface
-**Goal**: 用户可以在网页界面与 Henry 自然对话并查看历史记录
-**Depends on**: Phase 6
-**Requirements**: CHAT-01, CHAT-03, SEARCH-02
-**Success Criteria** (what must be TRUE):
-  1. 用户可以在网页界面输入问题并看到 Henry 的回答
-  2. 回答以流式方式实时显示（不是等待全部生成完成）
-  3. 对话历史在界面中正确展示（多轮对话上下文清晰）
-  4. 来源引用在界面中可点击查看原文
-**Plans**: TBD
+Plans:
+- [ ] 06-01-PLAN.md — FastAPI application setup with dependency injection and error handling
+- [ ] 06-02-PLAN.md — REST endpoints for conversation management (create, list, get)
+- [ ] 06-03-PLAN.md — SSE streaming endpoint for real-time chat responses
+- [ ] 06-04-PLAN.md — Document management REST endpoints (list, topics, search)
 **UI hint**: yes
 
 ### Phase 8: Frontend UI - Document Management
