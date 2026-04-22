@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI application
 app = FastAPI(
-    title="Henry API",
+    title="EcoMind API",
     version="1.0.0",
-    description="AI 电商专家对话系统 API"
+    description="EcoMind - AI 电商专家对话系统 API"
 )
 
 # CORS middleware - allow all origins in development
@@ -77,7 +77,7 @@ async def startup_event():
     import threading
     from src.api.dependencies import get_vector_store
     
-    logger.info("Henry API starting up...")
+    logger.info("EcoMind API starting up...")
     
     def preload_resources():
         global is_ready
@@ -97,7 +97,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up resources on application shutdown"""
-    logger.info("Henry API shutting down...")
+    logger.info("EcoMind API shutting down...")
     # Close any open connections if needed
     logger.info("Cleanup complete")
 
@@ -116,7 +116,7 @@ async def health_check():
     """Health check endpoint with readiness status"""
     return HealthResponse(
         status="ok" if is_ready else "loading",
-        service="henry-api"
+        service="ecomind-api"
     )
 
 

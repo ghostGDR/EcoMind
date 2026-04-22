@@ -1,0 +1,29 @@
+{
+  "name": "ecomind-ai",
+  "version": "1.0.0",
+  "description": "EcoMind - AI E-commerce Expert Dialogue System based on RAG and local LLMs",
+  "main": "bin/cli.js",
+  "bin": {
+    "ecomind": "bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "pytest tests/"
+  },
+  "keywords": [
+    "ai",
+    "ecommerce",
+    "rag",
+    "llm",
+    "chatbot"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "execa": "^5.1.1",
+    "ora": "^5.4.1",
+    "shelljs": "^0.8.5"
+  }
+}

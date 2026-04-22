@@ -8,19 +8,19 @@ into HenryVectorStore for semantic search.
 from typing import List, Optional
 from llama_index.core import VectorStoreIndex, Document
 from src.storage.document_store import DocumentStore
-from src.storage.vector_store import HenryVectorStore
+from src.storage.vector_store import EcoMindVectorStore
 
 
 class DocumentIndexer:
     """Orchestrates document ingestion pipeline."""
     
-    def __init__(self, document_store: DocumentStore, vector_store: HenryVectorStore):
+    def __init__(self, document_store: DocumentStore, vector_store: EcoMindVectorStore):
         """
         Initialize indexer with storage components.
         
         Args:
             document_store: DocumentStore for loading documents
-            vector_store: HenryVectorStore for vector indexing
+            vector_store: EcoMindVectorStore for vector indexing
         """
         self.document_store = document_store
         self.vector_store = vector_store

@@ -6,7 +6,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from pathlib import Path
 from typing import List, Optional
 
-class HenryVectorStore:
+class EcoMindVectorStore:
     """Wrapper for Qdrant vector database operations"""
     
     def __init__(self, db_path: str = "./data/qdrant_db"):
@@ -24,7 +24,7 @@ class HenryVectorStore:
         
         # Create vector store wrapper with explicit parameters to avoid pydantic issue
         self.vector_store = QdrantVectorStore(
-            collection_name="henry_knowledge_base",
+            collection_name="ecomind_knowledge_base",
             client=self.client,
             enable_hybrid=False,
             batch_size=64
@@ -38,7 +38,7 @@ class HenryVectorStore:
         try:
             from qdrant_client.http import models as rest_models
             self.client.create_payload_index(
-                collection_name="henry_knowledge_base",
+                collection_name="ecomind_knowledge_base",
                 field_name="text",
                 field_schema=rest_models.TextIndexParams(
                     type="text",
@@ -66,13 +66,13 @@ class HenryVectorStore:
         """Delete the collection to clear all data"""
         from llama_index.vector_stores.qdrant import QdrantVectorStore
         try:
-            self.client.delete_collection(collection_name="henry_knowledge_base")
+            self.client.delete_collection(collection_name="ecomind_knowledge_base")
         except Exception:
             pass
             
         # Recreate the vector store so it will initialize a new collection
         self.vector_store = QdrantVectorStore(
-            collection_name="henry_knowledge_base",
+            collection_name="ecomind_knowledge_base",
             client=self.client,
             enable_hybrid=False,
             batch_size=64
@@ -90,7 +90,7 @@ class HenryVectorStore:
     def get_collection_info(self) -> dict:
         """Get collection metadata"""
         try:
-            info = self.client.get_collection("henry_knowledge_base")
+            info = self.client.get_collection("ecomind_knowledge_base")
             return {
                 "points_count": info.points_count,
                 "status": info.status

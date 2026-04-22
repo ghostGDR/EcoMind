@@ -7,13 +7,13 @@ from src.search.search_engine import SearchEngine
 from src.storage.document_store import DocumentStore
 from src.storage.conversation_store import ConversationStore
 from src.rag.query_engine import QueryEngine
-from src.storage.vector_store import HenryVectorStore
+from src.storage.vector_store import EcoMindVectorStore
 
 from src.api.config import load_settings, Settings
 from src.llm.llm_client import LLMClient
 
 # Module-level cache for singleton instances
-_vector_store: Optional[HenryVectorStore] = None
+_vector_store: Optional[EcoMindVectorStore] = None
 _search_engine: Optional[SearchEngine] = None
 _query_engine: Optional[QueryEngine] = None
 _conversation_store: Optional[ConversationStore] = None
@@ -36,13 +36,13 @@ def reset_dependencies():
         _document_store = None
 
 
-def get_vector_store() -> HenryVectorStore:
-    """Get or create HenryVectorStore singleton"""
+def get_vector_store() -> EcoMindVectorStore:
+    """Get or create EcoMindVectorStore singleton"""
     global _vector_store
     if _vector_store is None:
         with _init_lock:
             if _vector_store is None:
-                _vector_store = HenryVectorStore()
+                _vector_store = EcoMindVectorStore()
     return _vector_store
 
 

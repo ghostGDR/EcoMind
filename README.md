@@ -1,4 +1,4 @@
-# Henry - AI E-commerce Expert Dialogue System
+# EcoMind - AI E-commerce Expert Dialogue System
 
 **English** | [日本語](./docs/README_ja.md) | [简体中文](./docs/README_zh.md)
 
@@ -15,86 +15,80 @@ An intelligent e-commerce knowledge base Q&A system powered by local LLMs. It ut
 - 🎨 **Advanced Markdown**: Full support for tables, lists, and code syntax highlighting.
 - ⚙️ **Web Configuration**: Configure model APIs and knowledge base paths directly in the UI without editing code or environment variables.
 
-## Tech Stack
-
-**Backend:**
-- **Python 3.9+**
-- **FastAPI**: High-performance REST API with SSE streaming.
-- **LlamaIndex**: Robust RAG framework.
-- **Qdrant**: High-performance vector database.
-- **SQLite**: Lightweight storage for conversation history.
-- **HuggingFace Embeddings**: Multilingual pre-trained models.
-
-**Frontend:**
-- **Vanilla JavaScript**: Zero-dependency, lightweight implementation.
-- **HTML5 + CSS3**: Modern, responsive design.
-- **Marked.js & Highlight.js**: Premium Markdown rendering and code highlighting.
-
 ## Quick Start
+
+### Installation
+
+#### macOS (Homebrew)
+```bash
+brew tap ecomind/tap
+brew install ecomind
+```
+
+#### Windows / Linux (NPM)
+```bash
+npm install -g ecomind-ai
+```
+
+#### Running the App
+Once installed, simply run:
+```bash
+ecomind start
+```
+
+This will automatically set up the Python environment and launch the server at **http://localhost:8080**.
 
 ### Prerequisites
 
+- **Node.js** (v16+)
 - **Python 3.9+**
-- **OLLAMA** or **oMLX** (for local LLM inference)
-- **Knowledge Base**: A folder containing `.md` or `.xlsx` files you want Henry to learn from.
+- **OLLAMA** or **oMLX** (if using local LLMs)
 
-### 1. Installation
+## Manual Installation
 
-Clone the repository and install the required dependencies:
+If you prefer to set up the environment manually:
 
-```bash
-git clone <repository-url>
-cd gsd_test
-pip install -r requirements.txt
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd EcoMind
+   ```
 
-### 2. Start Local LLM Service
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-If you plan to use local models, start your inference engine (e.g., OLLAMA or oMLX):
+3. **Start the server**:
+   ```bash
+   ./start_ecomind.sh
+   ```
 
-```bash
-# Example for oMLX
-/Applications/oMLX.app/Contents/MacOS/omlx-cli launch
-```
+## Setup & Configuration
 
-### 3. Launch Henry
-
-Run the startup script to launch the FastAPI server:
-
-```bash
-./start_server.sh
-```
-
-The server will be available at **http://localhost:8080**.
-
-### 4. Setup & Configuration
-
-Once the web interface is open:
+Once the web interface is open (**http://localhost:8080**):
 1. Click the **Gear Icon (⚙️)** in the sidebar header.
 2. **Provider**: Select `OLLAMA / oMLX` for local or `OpenAI`/`Anthropic` for cloud models.
 3. **Model**: Enter the model string (e.g., `Qwen3-Coder-30B-A3B-Instruct-4bit`).
 4. **Base URL**: For local oMLX, use `http://127.0.0.1:8000`.
-5. **Wiki Path**: Enter the absolute path to your documents folder (e.g., `/Users/yourname/documents`).
-6. **Save**: Click "Save Configuration". The system will automatically initialize the vector store and index your documents.
-
-### 5. Start Chatting!
-
-You can now ask questions about your documents. Henry will provide answers with citations and beautiful markdown formatting.
+5. **Wiki Path**: Enter the absolute path to your documents folder.
+6. **Save**: Click "Save Configuration". The system will automatically index your documents.
 
 ## Project Structure
 
 ```
 .
+├── bin/              # CLI scripts (Node.js)
 ├── src/
-│   ├── api/              # FastAPI application and routes
-│   ├── storage/          # Vector DB and persistence layer
-│   ├── indexing/         # Document indexing and preprocessing
-│   ├── search/           # Search engine logic
-│   ├── rag/              # Core RAG processes
-│   └── llm/              # LLM client integration
-├── frontend/             # Frontend static assets
-├── data/                 # Database and config files
-└── tests/                # Automated tests
+│   ├── api/          # FastAPI application and routes
+│   ├── storage/      # Vector DB and persistence layer
+│   ├── indexing/     # Document indexing and preprocessing
+│   ├── search/       # Search engine logic
+│   ├── rag/          # Core RAG processes
+│   └── llm/          # LLM client integration
+├── frontend/         # Frontend static assets
+├── data/             # Database and config files
+└── docs/             # Documentation in multiple languages
 ```
 
 ## License
@@ -103,4 +97,4 @@ MIT License
 
 ## Author
 
-Built with GSD (Get Shit Done) workflow
+Built with EcoMind team

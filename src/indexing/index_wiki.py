@@ -14,7 +14,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.storage.document_store import DocumentStore
-from src.storage.vector_store import HenryVectorStore
+from src.storage.vector_store import EcoMindVectorStore
 from src.indexing.document_indexer import DocumentIndexer
 
 
@@ -27,7 +27,7 @@ def main():
     # Initialize components
     print("\n1. Initializing storage components...")
     doc_store = DocumentStore.from_env()  # Uses WIKI_PATH env var or default
-    vector_store = HenryVectorStore()
+    vector_store = EcoMindVectorStore()
     indexer = DocumentIndexer(doc_store, vector_store)
     
     # Get document count before indexing

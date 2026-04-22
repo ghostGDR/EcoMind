@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from src.storage.vector_store import HenryVectorStore
+from src.storage.vector_store import EcoMindVectorStore
 from src.storage.document_store import DocumentStore
 from llama_index.core import VectorStoreIndex, Settings
 
@@ -8,7 +8,7 @@ from llama_index.core import VectorStoreIndex, Settings
 class SearchEngine:
     """Semantic search engine for Henry knowledge base"""
     
-    def __init__(self, vector_store: Optional[HenryVectorStore] = None):
+    def __init__(self, vector_store: Optional[EcoMindVectorStore] = None):
         """Initialize search engine with vector store
         
         Args:
@@ -19,7 +19,7 @@ class SearchEngine:
         """
         # Create or use provided vector store
         if vector_store is None:
-            self.vector_store = HenryVectorStore()
+            self.vector_store = EcoMindVectorStore()
             self._owns_vector_store = True
         else:
             self.vector_store = vector_store
