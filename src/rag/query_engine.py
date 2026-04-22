@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional
 from src.search.search_engine import SearchEngine
 from src.llm.llm_client import LLMClient
 from src.llm.prompts import HENRY_SYSTEM_PROMPT, RAG_PROMPT_TEMPLATE
+from .citation_formatter import format_citations
 import logging
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,14 @@ class QueryEngine:
             # Step 5: Generate answer using LLM
             answer = self.llm_client.generate(prompt, temperature=0.7)
             
-            # Step 6: Return answer with source metadata
+            # Step 6: Format citations
+            citations = format_citations(retrieved_docs)
+            
+            # Step 7: Append citations to answer if sources exist
+            if citations:
+                answer = answer + "\n\n" + citations
+            
+            # Step 8: Return answer with source metadata
             return {
                 'answer': answer,
                 'sources': retrieved_docs,
