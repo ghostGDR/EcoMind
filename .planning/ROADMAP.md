@@ -7,8 +7,8 @@
 
 ## Phases
 
-- [ ] **Phase 1: Data Layer Foundation** - 建立向量存储和数据库基础设施
-- [ ] **Phase 2: Knowledge Base Indexing** - 实现文档解析、分块和向量化索引
+- [x] **Phase 1: Data Layer Foundation** - 建立向量存储和数据库基础设施
+- [x] **Phase 2: Knowledge Base Indexing** - 实现文档解析、分块和向量化索引
 - [ ] **Phase 3: Semantic Search Implementation** - 构建混合检索引擎（语义+关键词）
 - [ ] **Phase 4: RAG Engine Core** - 集成检索与 LLM 生成带来源引用的答案
 - [ ] **Phase 5: Conversation Management** - 实现多轮对话和上下文窗口管理
@@ -32,9 +32,9 @@
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Initialize Qdrant vector database with LlamaIndex integration
-- [ ] 01-02-PLAN.md — Initialize SQLite database for conversation history
-- [ ] 01-03-PLAN.md — Implement document storage interface for file system access
+- [x] 01-01-PLAN.md — Initialize Qdrant vector database with LlamaIndex integration
+- [x] 01-02-PLAN.md — Initialize SQLite database for conversation history
+- [x] 01-03-PLAN.md — Implement document storage interface for file system access
 
 ### Phase 2: Knowledge Base Indexing
 **Goal**: 用户的 22 篇文章被正确解析、分块并索引到向量数据库
@@ -48,7 +48,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Build document ingestion pipeline and index all 21 wiki articles
+- [x] 02-01-PLAN.md — Build document ingestion pipeline and index all 21 wiki articles
 
 ### Phase 3: Semantic Search Implementation
 **Goal**: 用户可以通过语义理解搜索文档，获得准确的相关内容

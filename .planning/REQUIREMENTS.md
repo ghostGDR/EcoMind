@@ -28,9 +28,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **DOC-01**: 用户可以浏览所有文章列表
 - [ ] **DOC-02**: 用户可以按主题分类查看文章（TikTok、AI、财务、收款等）
-- [ ] **DOC-03**: 用户可以读取完整文章内容，Markdown 正确渲染
-- [ ] **DOC-04**: 用户可以上传新的 Markdown 文章到知识库
-- [ ] **DOC-05**: 系统支持读取和搜索 Excel 文件内容
+- [x] **DOC-03
+**: 用户可以读取完整文章内容，Markdown 正确渲染
+- [x] **DOC-04
+**: 用户可以上传新的 Markdown 文章到知识库
+- [x] **DOC-05
+**: 系统支持读取和搜索 Excel 文件内容
 - [ ] **DOC-06**: 系统实时监控 `/Users/a1234/wiki/raw/articles` 目录变化，自动更新索引
 - [ ] **DOC-07**: 用户可以编辑现有文章内容
 
