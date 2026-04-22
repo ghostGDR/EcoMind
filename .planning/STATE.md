@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-04-22T08:08:57.153Z"
+last_updated: "2026-04-22T08:11:35.767Z"
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 16
-  completed_plans: 14
-  percent: 88
+  completed_plans: 15
+  percent: 94
 ---
 
 # Project State: Henry - AI 电商专家对话系统
@@ -140,6 +140,11 @@ progress:
 - Use hybrid_search over semantic_search for better accuracy with technical terms
 - Validate top_k <= 50 to prevent DoS (T-06-15 mitigation)
 
+| Phase 06 P02 | 5 | 1 tasks | 6 files |
+
+- Use check_same_thread=False in SQLite connection for FastAPI async compatibility - allows singleton ConversationStore to work across async request threads
+- Return 201 Created for POST /api/conversations - follows REST conventions for resource creation
+
 ### Active Todos
 
 | Todo | Priority | Context | Added |
@@ -160,7 +165,7 @@ progress:
 
 ## Session Continuity
 
-**Last Session:** 2026-04-22T08:08:57.146Z
+**Last Session:** 2026-04-22T08:11:35.520Z
 **Work Completed:**
 
 - Phase 01: Data Layer Foundation (3 plans) ✓
