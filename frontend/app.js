@@ -44,6 +44,115 @@ async function getConversation(conversationId) {
   return await response.json(); // Returns {id, title, created_at, messages}
 }
 
+// POST /api/chat - Send message and handle SSE streaming response
+async function sendMessage(conversationId, message) {
+  if (!message.trim()) return;
+  
+  // Add user message to UI immediately
+  const userMessage = {
+    id: Date.now(), // Temporary ID
+    role: 'user',
+    content: message,
+    created_at: new Date().toISOString(),
+    sources: null
+  };
+  
+  state.currentMessages.push(userMessage);
+  updateState({ isStreaming: true });
+  
+  // Create placeholder for Henry's response
+  const henryMessage = {
+    id: Date.now() + 1,
+    role: 'assistant',
+    content: '',
+    created_at: new Date().toISOString(),
+    sources: []
+  };
+  state.currentMessages.push(henryMessage);
+  render();
+  
+  try {
+    // Send POST request to /api/chat
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversation_id: conversationId,
+        message: message
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    // Read SSE stream using ReadableStream
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      // Decode chunk and add to buffer
+      buffer += decoder.decode(value, { stream: true });
+      
+      // Process complete lines (SSE events end with \n\n)
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // Keep incomplete line in buffer
+      
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const eventData = JSON.parse(line.slice(6));
+          handleSSEEvent(eventData, henryMessage);
+        }
+      }
+    }
+    
+    // Reload conversation to get persisted messages with correct IDs
+    await loadConversation(conversationId);
+    
+  } catch (error) {
+    console.error('Error sending message:', error);
+    henryMessage.content = '抱歉，发送消息时出错了。请重试。';
+    render();
+  } finally {
+    updateState({ isStreaming: false });
+  }
+}
+
+// Handle individual SSE events
+function handleSSEEvent(event, henryMessage) {
+  switch (event.type) {
+    case 'answer':
+      // Append answer chunk to Henry's message
+      henryMessage.content += event.content;
+      render();
+      break;
+      
+    case 'sources':
+      // Add sources to Henry's message
+      henryMessage.sources = event.content;
+      render();
+      break;
+      
+    case 'done':
+      // Stream complete - no action needed
+      console.log('Stream complete');
+      break;
+      
+    case 'error':
+      // Display error message
+      henryMessage.content = `错误: ${event.content}`;
+      render();
+      break;
+      
+    default:
+      console.warn('Unknown SSE event type:', event.type);
+  }
+}
+
 // ============================================================================
 // Event Handlers
 // ============================================================================
@@ -63,6 +172,33 @@ async function handleNewConversation() {
 // Handle conversation item click
 async function handleConversationClick(conversationId) {
   await loadConversation(conversationId);
+}
+
+// Handle send button click
+async function handleSendMessage() {
+  const input = document.getElementById('message-input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  if (state.isStreaming) return; // Prevent sending while streaming
+  if (!state.currentConversationId) {
+    alert('请先创建或选择一个对话');
+    return;
+  }
+  
+  // Clear input immediately
+  input.value = '';
+  
+  // Send message
+  await sendMessage(state.currentConversationId, message);
+}
+
+// Handle Enter key in textarea (Shift+Enter for new line)
+function handleMessageInputKeydown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    handleSendMessage();
+  }
 }
 
 // Load conversation and display messages
@@ -96,6 +232,7 @@ async function loadConversations() {
 function render() {
   renderConversationList();
   renderMessages();
+  updateInputState();
 }
 
 function renderConversationList() {
@@ -161,6 +298,21 @@ function renderMessages() {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+function updateInputState() {
+  const input = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  
+  if (state.isStreaming) {
+    input.disabled = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = '发送中...';
+  } else {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    sendBtn.textContent = '发送';
+  }
+}
+
 // ============================================================================
 // Utility Functions
 // ============================================================================
@@ -180,6 +332,8 @@ function escapeHtml(text) {
 document.addEventListener('DOMContentLoaded', async () => {
   // Attach event listeners
   document.getElementById('new-conversation-btn').addEventListener('click', handleNewConversation);
+  document.getElementById('send-btn').addEventListener('click', handleSendMessage);
+  document.getElementById('message-input').addEventListener('keydown', handleMessageInputKeydown);
   
   // Load initial data
   await loadConversations();
