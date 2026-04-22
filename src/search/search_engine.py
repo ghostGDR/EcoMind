@@ -68,19 +68,33 @@ class SearchEngine:
         if not query or not query.strip():
             return []
         
-        # Execute query
-        response = self.query_engine.query(query)
+        # Get embedding for query using the same model as indexing
+        from llama_index.core import Settings
+        query_embedding = Settings.embed_model.get_query_embedding(query)
+        
+        # Query Qdrant directly using the new API
+        search_result = self.vector_store.client.query_points(
+            collection_name="henry_knowledge_base",
+            query=query_embedding,
+            limit=20,  # Retrieve more internally for filtering
+            with_payload=True,
+            with_vectors=False
+        )
         
         # Process results
         results = []
-        for node in response.source_nodes:
+        for scored_point in search_result.points:
+            score = scored_point.score
+            
             # Filter by minimum score
-            if node.score >= min_score:
+            if score >= min_score:
+                # Extract text and metadata from payload
+                payload = scored_point.payload
                 results.append({
-                    'content': node.text,
-                    'score': float(node.score),
-                    'metadata': node.metadata,
-                    'node_id': node.node_id
+                    'content': payload.get('text', payload.get('_node_content', '')),
+                    'score': float(score),
+                    'metadata': payload.get('metadata', {}),
+                    'node_id': scored_point.id
                 })
         
         # Limit to top_k results
