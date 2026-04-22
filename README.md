@@ -1,6 +1,6 @@
 # Henry - AI E-commerce Expert Dialogue System
 
-**English** | [日本語](./README_ja.md) | [简体中文](./README_zh.md)
+**English** | [日本語](./docs/README_ja.md) | [简体中文](./docs/README_zh.md)
 
 An intelligent e-commerce knowledge base Q&A system powered by local LLMs. It utilizes RAG (Retrieval-Augmented Generation) technology to answer questions related to cross-border e-commerce.
 
@@ -32,34 +32,54 @@ An intelligent e-commerce knowledge base Q&A system powered by local LLMs. It ut
 
 ## Quick Start
 
-### 1. Install Dependencies
+### Prerequisites
+
+- **Python 3.9+**
+- **OLLAMA** or **oMLX** (for local LLM inference)
+- **Knowledge Base**: A folder containing `.md` or `.xlsx` files you want Henry to learn from.
+
+### 1. Installation
+
+Clone the repository and install the required dependencies:
 
 ```bash
+git clone <repository-url>
+cd gsd_test
 pip install -r requirements.txt
 ```
 
-### 2. Start Base Services
+### 2. Start Local LLM Service
 
-If you are using local models, ensure that OLLAMA or oMLX is running.
+If you plan to use local models, start your inference engine (e.g., OLLAMA or oMLX):
 
-### 3. Start the Server
+```bash
+# Example for oMLX
+/Applications/oMLX.app/Contents/MacOS/omlx-cli launch
+```
+
+### 3. Launch Henry
+
+Run the startup script to launch the FastAPI server:
 
 ```bash
 ./start_server.sh
 ```
 
-Or start manually:
+The server will be available at **http://localhost:8080**.
 
-```bash
-python3 -m uvicorn src.api.main:app --host 0.0.0.0 --port 8080 --reload
-```
+### 4. Setup & Configuration
 
-### 4. Access and Configuration
+Once the web interface is open:
+1. Click the **Gear Icon (⚙️)** in the sidebar header.
+2. **Provider**: Select `OLLAMA / oMLX` for local or `OpenAI`/`Anthropic` for cloud models.
+3. **Model**: Enter the model string (e.g., `Qwen3-Coder-30B-A3B-Instruct-4bit`).
+4. **Base URL**: For local oMLX, use `http://127.0.0.1:8000`.
+5. **Wiki Path**: Enter the absolute path to your documents folder (e.g., `/Users/yourname/documents`).
+6. **Save**: Click "Save Configuration". The system will automatically initialize the vector store and index your documents.
 
-1. Open your browser and navigate to: **http://localhost:8080**
-2. Click the **Settings icon** at the top of the sidebar.
-3. Configure your LLM API details and the path to your local knowledge base directory.
-4. Save the settings, and the system will automatically initialize the resources.
+### 5. Start Chatting!
+
+You can now ask questions about your documents. Henry will provide answers with citations and beautiful markdown formatting.
 
 ## Project Structure
 

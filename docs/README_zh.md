@@ -1,6 +1,6 @@
 # Henry - AI 电商专家对话系统
 
-[English](./README.md) | [日本語](./README_ja.md) | **简体中文**
+[English](../README.md) | [日本語](./README_ja.md) | **简体中文**
 
 基于本地 LLM 的智能电商知识库问答系统，使用 RAG (检索增强生成) 技术回答跨境电商相关问题。
 
@@ -32,34 +32,54 @@
 
 ## 快速开始
 
-### 1. 安装依赖
+### 准备工作
+
+- **Python 3.9+**
+- **OLLAMA** 或 **oMLX** (用于本地 LLM 推理)
+- **知识库**: 一个包含 `.md` 或 `.xlsx` 文件的文件夹，用于系统学习。
+
+### 1. 安装
+
+克隆仓库并安装必要的依赖：
 
 ```bash
+git clone <repository-url>
+cd gsd_test
 pip install -r requirements.txt
 ```
 
-### 2. 启动基础服务
+### 2. 启动本地 LLM 服务
 
-如果您使用本地模型，请确保 OLLAMA 或 oMLX 已启动。
+如果您打算使用本地模型，请启动推理引擎（例如 OLLAMA 或 oMLX）：
 
-### 3. 启动服务器
+```bash
+# oMLX 示例
+/Applications/oMLX.app/Contents/MacOS/omlx-cli launch
+```
+
+### 3. 启动 Henry
+
+运行启动脚本以启动 FastAPI 服务器：
 
 ```bash
 ./start_server.sh
 ```
 
-或手动启动：
+服务器将运行在 **http://localhost:8080**。
 
-```bash
-python3 -m uvicorn src.api.main:app --host 0.0.0.0 --port 8080 --reload
-```
+### 4. 系统配置
 
-### 4. 访问与配置
+打开网页界面后：
+1. 点击侧边栏顶部的**齿轮图标 (⚙️)**。
+2. **提供商 (Provider)**: 本地模型选择 `OLLAMA / oMLX`，云端模型选择 `OpenAI` 或 `Anthropic`。
+3. **模型名称 (Model)**: 输入模型标识符（如 `Qwen3-Coder-30B-A3B-Instruct-4bit`）。
+4. **基础 URL (Base URL)**: 对于本地 oMLX，使用 `http://127.0.0.1:8000`。
+5. **知识库路径 (Wiki Path)**: 输入文档文件夹的**绝对路径**。
+6. **保存**: 点击“保存配置”。系统将自动初始化向量数据库并为您的文档建立索引。
 
-1. 打开浏览器访问：**http://localhost:8080**
-2. 点击侧边栏顶部的**设置图标**。
-3. 配置您的 LLM 接口地址、模型名称以及本地知识库目录路径。
-4. 保存配置后，系统会自动加载资源。
+### 5. 开始对话！
+
+现在您可以开始提问了。Henry 将根据您的文档提供带引用的回答，并支持精美的 Markdown 格式。
 
 ## 项目结构
 
