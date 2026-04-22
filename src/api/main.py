@@ -6,6 +6,11 @@ from fastapi.staticfiles import StaticFiles
 from src.api.models import HealthResponse, ErrorResponse
 from src.api.routes import chat, conversations, documents
 import logging
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -61,12 +66,31 @@ async def generic_exception_handler(request: Request, exc: Exception):
     )
 
 
+# Readiness flag
+is_ready = False
+
 # Lifecycle events
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize resources on application startup"""
+    import threading
+    from src.api.dependencies import get_vector_store
+    
     logger.info("Henry API starting up...")
+    
+    def preload_resources():
+        global is_ready
+        try:
+            logger.info("Preloading model and vector store...")
+            get_vector_store()
+            is_ready = True
+            logger.info("All resources preloaded and ready!")
+        except Exception as e:
+            logger.error(f"Error preloading resources: {e}")
+
+    # Start preloading in a background thread to not block startup
+    threading.Thread(target=preload_resources, daemon=True).start()
     logger.info("FastAPI application initialized")
 
 
@@ -88,9 +112,9 @@ app.include_router(documents.router)
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with readiness status"""
     return HealthResponse(
-        status="ok",
+        status="ok" if is_ready else "loading",
         service="henry-api"
     )
 

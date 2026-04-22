@@ -44,6 +44,15 @@ async function getConversation(conversationId) {
   return await response.json(); // Returns {id, title, created_at, messages}
 }
 
+// DELETE /api/conversations/{id} - Delete conversation
+async function deleteConversation(conversationId) {
+  const response = await fetch(`/api/conversations/${conversationId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('Failed to delete conversation');
+  return await response.json();
+}
+
 // POST /api/chat - Send message and handle SSE streaming response
 async function sendMessage(conversationId, message) {
   if (!message.trim()) return;
@@ -205,13 +214,14 @@ function handleMessageInputKeydown(event) {
 async function loadConversation(conversationId) {
   try {
     const conversation = await getConversation(conversationId);
+    console.log('Successfully loaded conversation:', conversation);
     updateState({
       currentConversationId: conversation.id,
       currentMessages: conversation.messages
     });
   } catch (error) {
-    console.error('Error loading conversation:', error);
-    alert('加载对话失败，请重试');
+    console.error(`Error loading conversation ${conversationId}:`, error);
+    alert(`加载对话失败: ${error.message}`);
   }
 }
 
@@ -246,56 +256,153 @@ function renderConversationList() {
   
   state.conversations.forEach(conv => {
     const item = document.createElement('div');
-    item.className = 'conversation-item';
-    if (conv.id === state.currentConversationId) {
-      item.classList.add('active');
-    }
+    item.className = `conversation-item ${conv.id === state.currentConversationId ? 'active' : ''}`;
     
-    item.innerHTML = `
-      <div class="conversation-title">${escapeHtml(conv.title)}</div>
-      <div class="conversation-meta">${conv.message_count} 条消息</div>
+    // Create a wrapper for the title to allow flex grow
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'conversation-title';
+    titleSpan.textContent = conv.title || `对话 ${conv.id}`;
+    
+    // Create the delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-conv-btn';
+    deleteBtn.title = '删除对话';
+    deleteBtn.setAttribute('aria-label', '删除对话');
+    
+    // Use a simpler SVG path for better compatibility
+    deleteBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none; display: block;">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
     `;
     
-    item.addEventListener('click', () => handleConversationClick(conv.id));
+    // Event handlers
+    deleteBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleDeleteConversation(e, conv.id);
+    };
+    
+    item.onclick = () => loadConversation(conv.id);
+    
+    // Append in correct order
+    item.appendChild(titleSpan);
+    item.appendChild(deleteBtn);
     listContainer.appendChild(item);
   });
 }
 
-function renderMessages() {
-  const messagesContainer = document.getElementById('messages');
-  messagesContainer.innerHTML = ''; // Clear existing
+async function handleDeleteConversation(event, conversationId) {
+  event.stopPropagation(); // Prevent selection
   
-  if (state.currentMessages.length === 0) {
-    messagesContainer.innerHTML = '<div class="empty-state">开始新对话吧！</div>';
+  if (!confirm('确定要删除这条对话吗？此操作不可恢复。')) {
     return;
   }
   
-  state.currentMessages.forEach(msg => {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message message-${msg.role}`;
+  try {
+    await deleteConversation(conversationId);
     
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = msg.content;
-    messageDiv.appendChild(contentDiv);
-    
-    // Add sources if present (for Henry's messages)
-    if (msg.sources && msg.sources.length > 0) {
-      const sourcesDiv = document.createElement('div');
-      sourcesDiv.className = 'message-sources';
-      const sourceFiles = msg.sources.map(s => {
-        const filename = s.document_path.split('/').pop();
-        return filename;
-      }).join(', ');
-      sourcesDiv.textContent = `来源: ${sourceFiles}`;
-      messageDiv.appendChild(sourcesDiv);
+    // If deleted the current conversation, clear view or switch to newest
+    if (state.currentConversationId === conversationId) {
+      updateState({ 
+        currentConversationId: null, 
+        currentMessages: [] 
+      });
     }
     
-    messagesContainer.appendChild(messageDiv);
-  });
+    // Refresh list
+    await loadConversations();
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+    alert('删除失败: ' + error.message);
+  }
+}
+
+function renderMessages() {
+  const messagesContainer = document.getElementById('messages');
+  const wasAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
   
-  // Auto-scroll to bottom
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  // To avoid flickering, we only rebuild the entire list if the message count changed
+  // or if we're not in a streaming state.
+  const currentMessageCount = messagesContainer.querySelectorAll('.message').length;
+  
+  if (currentMessageCount !== state.currentMessages.length || !state.isStreaming) {
+    messagesContainer.innerHTML = '';
+    
+    if (state.currentMessages.length === 0) {
+      messagesContainer.innerHTML = '<div class="empty-state">开始新对话吧！</div>';
+      return;
+    }
+    
+    state.currentMessages.forEach((msg, index) => {
+      const isLast = index === state.currentMessages.length - 1;
+      const messageDiv = createMessageElement(msg, isLast && state.isStreaming);
+      messagesContainer.appendChild(messageDiv);
+    });
+  } else {
+    // We are streaming and the message count matches. 
+    // Just update the content of the last message.
+    const lastMsg = state.currentMessages[state.currentMessages.length - 1];
+    const messageElements = messagesContainer.querySelectorAll('.message');
+    const lastElement = messageElements[messageElements.length - 1];
+    
+    if (lastElement && lastMsg.role === 'assistant') {
+      const contentDiv = lastElement.querySelector('.message-content');
+      if (contentDiv && contentDiv.textContent !== lastMsg.content) {
+        contentDiv.textContent = lastMsg.content;
+      }
+    }
+  }
+  
+  // Sticky scroll to bottom
+  if (wasAtBottom || !state.isStreaming) {
+    requestAnimationFrame(() => {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+  }
+}
+
+function createMessageElement(msg, isStreaming) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${msg.role === 'user' ? 'user' : 'henry'}`;
+  
+  if (isStreaming && msg.role === 'assistant') {
+    messageDiv.classList.add('message-streaming');
+  }
+  
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+  contentDiv.textContent = msg.content;
+  messageDiv.appendChild(contentDiv);
+  
+  // Add sources if present
+  if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
+    const sourcesDiv = document.createElement('div');
+    sourcesDiv.className = 'message-sources';
+    
+    const title = document.createElement('strong');
+    title.textContent = '参考资料：';
+    sourcesDiv.appendChild(title);
+    
+    const list = document.createElement('div');
+    const getPath = (s) => s.metadata?.relative_path || s.metadata?.file_path || s.document_path || '未知文件';
+    const uniquePaths = Array.from(new Set(msg.sources.map(getPath)));
+    const uniqueSources = uniquePaths.map(path => msg.sources.find(s => getPath(s) === path));
+      
+    list.textContent = uniqueSources.map(s => {
+      const path = getPath(s);
+      const parts = path.split('/');
+      return parts[parts.length - 1];
+    }).join('、');
+    
+    sourcesDiv.appendChild(list);
+    messageDiv.appendChild(sourcesDiv);
+  }
+  
+  return messageDiv;
 }
 
 function updateInputState() {
@@ -305,12 +412,21 @@ function updateInputState() {
   if (state.isStreaming) {
     input.disabled = true;
     sendBtn.disabled = true;
-    sendBtn.textContent = '发送中...';
+    sendBtn.style.opacity = '0.5';
   } else {
     input.disabled = false;
     sendBtn.disabled = false;
-    sendBtn.textContent = '发送';
+    sendBtn.style.opacity = '1';
   }
+}
+
+// Auto-expand textarea
+function initAutoExpand() {
+  const input = document.getElementById('message-input');
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = (input.scrollHeight) + 'px';
+  });
 }
 
 // ============================================================================
@@ -324,16 +440,51 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Check if the backend is ready (model loaded)
+async function checkSystemReadiness() {
+  const overlay = document.getElementById('loading-overlay');
+  const maxAttempts = 60; // 60 seconds max
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    try {
+      const response = await fetch('/health');
+      const data = await response.json();
+      
+      if (data.status === 'ok') {
+        console.log('System is ready!');
+        overlay.classList.add('hidden');
+        return;
+      }
+    } catch (e) {
+      console.warn('Waiting for backend...', e);
+    }
+    
+    attempts++;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  
+  // If timeout, show error in overlay
+  const loaderH3 = overlay.querySelector('h3');
+  loaderH3.textContent = '系统初始化超时';
+  loaderH3.style.color = '#ef4444';
+}
+
 // ============================================================================
 // Initialization
 // ============================================================================
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', async () => {
+  // Start readiness check
+  checkSystemReadiness();
+
   // Attach event listeners
   document.getElementById('new-conversation-btn').addEventListener('click', handleNewConversation);
   document.getElementById('send-btn').addEventListener('click', handleSendMessage);
   document.getElementById('message-input').addEventListener('keydown', handleMessageInputKeydown);
+  
+  initAutoExpand();
   
   // Load initial data
   await loadConversations();

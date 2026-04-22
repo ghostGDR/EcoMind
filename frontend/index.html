@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h3>正在初始化 Henry AI 系统</h3>
+            <p>加载多语言向量模型中，请稍候 (约 20-30 秒)...</p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Sidebar: Conversation History -->
         <aside id="sidebar">
@@ -29,14 +38,20 @@
                 <!-- Chat messages will be populated by JavaScript -->
             </section>
 
-            <section id="input-area" class="input-area">
-                <textarea 
-                    id="message-input" 
-                    class="message-input" 
-                    placeholder="输入您的问题..."
-                    rows="3"
-                ></textarea>
-                <button id="send-btn" class="send-btn">发送</button>
+            <section class="input-area">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="message-input" 
+                        class="message-input" 
+                        placeholder="在此输入您的问题..."
+                        rows="1"
+                    ></textarea>
+                    <button id="send-btn" class="send-btn" title="发送消息">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
             </section>
         </main>
     </div>

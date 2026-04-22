@@ -11,10 +11,10 @@ class LLMClient:
         Initialize LLM client
         
         Args:
-            provider: 'openai', 'anthropic', or 'ollama'
+            provider: 'openai', 'anthropic', 'ollama', or 'omlx'
             model: Model name (e.g., 'gpt-4o-mini', 'claude-3-sonnet-20240229', 'qwen2.5:latest')
-            api_key: API key (defaults to environment variable, not required for ollama)
-            base_url: Base URL for API (for ollama: http://127.0.0.1:8000)
+            api_key: API key (defaults to environment variable, not required for local models)
+            base_url: Base URL for API (for omlx: http://127.0.0.1:8000)
         """
         self.provider = provider.lower()
         self.model = model
@@ -27,12 +27,13 @@ class LLMClient:
             self.api_key = os.environ.get('OPENAI_API_KEY', '')
         elif self.provider == 'anthropic':
             self.api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-        elif self.provider == 'ollama':
-            # OLLAMA doesn't require API key
-            self.api_key = None
-            # Default base URL for OLLAMA
+        elif self.provider in ['ollama', 'omlx']:
+            # Some local models (like oMLX) require an API key
+            if not getattr(self, 'api_key', None):
+                self.api_key = os.environ.get('LLM_API_KEY', os.environ.get('OLLAMA_API_KEY', os.environ.get('OPENAI_API_KEY', 'local')))
+            # Default base URL for local models
             if not self.base_url:
-                self.base_url = os.environ.get('OLLAMA_BASE_URL', 'http://127.0.0.1:8000')
+                self.base_url = os.environ.get('LLM_BASE_URL', os.environ.get('OLLAMA_BASE_URL', 'http://127.0.0.1:8000'))
         else:
             raise ValueError(f"Unsupported provider: {provider}")
         
@@ -44,12 +45,12 @@ class LLMClient:
         elif self.provider == 'anthropic':
             import anthropic
             self._client = anthropic.Anthropic(api_key=self.api_key)
-        elif self.provider == 'ollama':
+        elif self.provider in ['ollama', 'omlx']:
             import openai
-            # Use OpenAI client with custom base URL for OLLAMA compatibility
+            # Use OpenAI client with custom base URL for local compatibility
             self._client = openai.OpenAI(
                 base_url=f"{self.base_url}/v1",
-                api_key="ollama"  # OLLAMA doesn't validate API key
+                api_key=self.api_key
             )
     
     def generate(self, prompt: str, temperature: float = 0.7) -> str:
@@ -64,8 +65,9 @@ class LLMClient:
             Generated text response
         """
         try:
-            if self.provider == 'openai' or self.provider == 'ollama':
-                # Both OpenAI and OLLAMA use the same API format
+            if self.provider in ['openai', 'ollama', 'omlx']:
+                # Both OpenAI and local models use the same API format
+                print(f"DEBUG: LLMClient generate() called with provider={self.provider}, model={self.model}, base_url={self._client.base_url}")
                 response = self._client.chat.completions.create(
                     model=self.model,
                     messages=[

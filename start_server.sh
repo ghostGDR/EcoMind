@@ -4,16 +4,16 @@
 echo "🚀 启动 Henry AI 电商专家系统..."
 echo ""
 echo "📋 检查配置："
-echo "  - OLLAMA 服务: http://127.0.0.1:8000"
+echo "  - oMLX 服务: http://127.0.0.1:8000"
 echo "  - FastAPI 服务: http://localhost:8080"
 echo "  - 模型: Qwen3-Coder-30B-A3B-Instruct-4bit"
 echo ""
 
-# 检查 OLLAMA 是否运行
+# 检查 oMLX 是否运行
 if curl -s http://127.0.0.1:8000/health > /dev/null 2>&1; then
-    echo "✅ OLLAMA 服务正在运行"
+    echo "✅ oMLX 服务正在运行"
 else
-    echo "❌ OLLAMA 服务未运行，请先启动 OLLAMA"
+    echo "❌ oMLX 服务未运行，请先启动 oMLX"
     echo "   启动命令: /Applications/oMLX.app/Contents/MacOS/omlx-cli launch"
     exit 1
 fi

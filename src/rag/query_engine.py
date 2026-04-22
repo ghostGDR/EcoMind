@@ -17,7 +17,7 @@ class QueryEngine:
         search_engine: Optional[SearchEngine] = None,
         llm_client: Optional[LLMClient] = None,
         top_k: int = 5,
-        min_score: float = 0.5
+        min_score: float = 0.1
     ):
         """
         Initialize RAG query engine
@@ -37,7 +37,11 @@ class QueryEngine:
             self._owns_search_engine = False
         
         if llm_client is None:
-            self.llm_client = LLMClient(provider='openai', model='gpt-4o-mini')
+            import os
+            provider = os.getenv('LLM_PROVIDER', 'openai')
+            model = os.getenv('LLM_MODEL', 'gpt-4o-mini')
+            logger.info(f"Initializing QueryEngine with provider: {provider}, model: {model}")
+            self.llm_client = LLMClient(provider=provider, model=model)
             self._owns_llm_client = True
         else:
             self.llm_client = llm_client
@@ -69,14 +73,11 @@ class QueryEngine:
             
             # Step 2: Check if any documents were retrieved
             if not retrieved_docs:
-                return {
-                    'answer': '抱歉，我的知识库中暂时没有关于这个问题的信息。',
-                    'sources': [],
-                    'has_sources': False
-                }
-            
-            # Step 3: Format context from retrieved documents
-            formatted_context = self._format_context(retrieved_docs)
+                formatted_context = "暂无相关知识库内容。"
+                has_sources = False
+            else:
+                formatted_context = self._format_context(retrieved_docs)
+                has_sources = True
             
             # Step 4: Build prompt using RAG template
             prompt = RAG_PROMPT_TEMPLATE.format(
@@ -87,18 +88,11 @@ class QueryEngine:
             # Step 5: Generate answer using LLM
             answer = self.llm_client.generate(prompt, temperature=0.7)
             
-            # Step 6: Format citations
-            citations = format_citations(retrieved_docs)
-            
-            # Step 7: Append citations to answer if sources exist
-            if citations:
-                answer = answer + "\n\n" + citations
-            
             # Step 8: Return answer with source metadata
             return {
                 'answer': answer,
                 'sources': retrieved_docs,
-                'has_sources': True
+                'has_sources': has_sources
             }
         
         except Exception as e:

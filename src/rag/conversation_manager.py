@@ -208,9 +208,20 @@ class ConversationManager:
         """
         transformed = []
         for source in sources:
+            metadata = source.get('metadata', {})
+            # Try multiple keys for the file path (be robust to different indexing states)
+            path = (metadata.get('relative_path') or 
+                    metadata.get('file_path') or 
+                    metadata.get('path') or 
+                    'unknown')
+            
             transformed.append({
-                'document_path': source.get('metadata', {}).get('file_path', 'unknown'),
+                'document_path': path,
                 'chunk_text': source.get('content', ''),
                 'relevance_score': source.get('score', 0.0)
             })
         return transformed
+
+    def delete_conversation(self, conversation_id: int) -> bool:
+        """Delete a conversation"""
+        return self.conversation_store.delete_conversation(conversation_id)

@@ -16,7 +16,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print()
     print("📋 配置信息：")
-    print(f"  - OLLAMA 服务: http://127.0.0.1:8000")
+    print(f"  - oMLX 服务: http://127.0.0.1:8000")
     print(f"  - FastAPI 服务: http://localhost:8080")
     print(f"  - 模型: {os.getenv('LLM_MODEL', 'Qwen3-Coder-30B-A3B-Instruct-4bit')}")
     print()

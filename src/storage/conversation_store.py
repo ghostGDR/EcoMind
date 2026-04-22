@@ -215,6 +215,13 @@ class ConversationStore:
         
         return conversations
     
+    def delete_conversation(self, conversation_id: int) -> bool:
+        """Delete a conversation and all its messages"""
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM conversations WHERE id = ?", (conversation_id,))
+        self.conn.commit()
+        return cursor.rowcount > 0
+    
     def close(self):
         """Close database connection"""
         self.conn.close()

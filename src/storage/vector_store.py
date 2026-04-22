@@ -16,7 +16,7 @@ class HenryVectorStore:
         
         # Configure local embedding model (384-dimensional vectors)
         Settings.embed_model = HuggingFaceEmbedding(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
         )
         
         # Initialize Qdrant client (persistent mode)
@@ -32,6 +32,26 @@ class HenryVectorStore:
         
         # Configure chunk size for Chinese text
         Settings.chunk_size = 512
+        Settings.chunk_overlap = 50
+        
+        # Ensure full-text index exists for BM25-like search
+        try:
+            from qdrant_client.http import models as rest_models
+            self.client.create_payload_index(
+                collection_name="henry_knowledge_base",
+                field_name="text",
+                field_schema=rest_models.TextIndexParams(
+                    type="text",
+                    tokenizer=rest_models.TokenizerType.MULTILINGUAL,
+                    lowercase=True,
+                    cleansed=True,
+                    index_params=rest_models.TextIndexParamsDiff(
+                        on_disk=True
+                    )
+                )
+            )
+        except Exception:
+            pass # Index might already exist or collection not created yet
     
     def close(self):
         """Close the Qdrant client to release file locks"""
@@ -41,6 +61,22 @@ class HenryVectorStore:
     def get_storage_context(self) -> StorageContext:
         """Get storage context for LlamaIndex"""
         return StorageContext.from_defaults(vector_store=self.vector_store)
+        
+    def clear_collection(self):
+        """Delete the collection to clear all data"""
+        from llama_index.vector_stores.qdrant import QdrantVectorStore
+        try:
+            self.client.delete_collection(collection_name="henry_knowledge_base")
+        except Exception:
+            pass
+            
+        # Recreate the vector store so it will initialize a new collection
+        self.vector_store = QdrantVectorStore(
+            collection_name="henry_knowledge_base",
+            client=self.client,
+            enable_hybrid=False,
+            batch_size=64
+        )
     
     def create_index(self, documents: List) -> VectorStoreIndex:
         """Create vector index from documents"""

@@ -90,10 +90,31 @@ class SearchEngine:
             if score >= min_score:
                 # Extract text and metadata from payload
                 payload = scored_point.payload
+                content = payload.get('text', '')
+                metadata = payload.get('metadata', {})
+                
+                # If content or metadata is missing, try to parse from '_node_content'
+                if '_node_content' in payload:
+                    try:
+                        import json
+                        node_data = json.loads(payload['_node_content'])
+                        if not content:
+                            content = node_data.get('text', '')
+                        # Also check for metadata in node_data
+                        node_metadata = node_data.get('metadata', {})
+                        if node_metadata:
+                            # Merge, preferring node_data if current metadata is empty or sparse
+                            for k, v in node_metadata.items():
+                                if k not in metadata or not metadata[k]:
+                                    metadata[k] = v
+                    except Exception:
+                        if not content:
+                            content = payload['_node_content']
+                
                 results.append({
-                    'content': payload.get('text', payload.get('_node_content', '')),
+                    'content': content,
                     'score': float(score),
-                    'metadata': payload.get('metadata', {}),
+                    'metadata': metadata,
                     'node_id': scored_point.id
                 })
         

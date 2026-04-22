@@ -166,3 +166,19 @@ async def get_conversation(
             status_code=500,
             detail=f"Failed to retrieve conversation: {str(e)}"
         )
+
+@router.delete("/{conversation_id}")
+async def delete_conversation(
+    conversation_id: int,
+    manager: ConversationManager = Depends(get_conversation_manager)
+):
+    """
+    Delete a conversation
+    """
+    success = manager.delete_conversation(conversation_id)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation {conversation_id} not found"
+        )
+    return {"status": "success", "message": "Conversation deleted"}

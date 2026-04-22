@@ -105,7 +105,7 @@ async def list_documents_by_topic(
 async def search_documents(
     query: str = Query(..., description="Search query string"),
     top_k: int = Query(5, ge=1, le=50, description="Maximum number of results"),
-    min_score: float = Query(0.5, ge=0.0, le=1.0, description="Minimum similarity score"),
+    min_score: float = Query(0.2, ge=0.0, le=1.0, description="Minimum similarity score"),
     search_engine: SearchEngine = Depends(get_search_engine)
 ):
     """
@@ -130,15 +130,18 @@ async def search_documents(
         )
         
         # Transform to response format
-        search_results = [
-            SearchResultItem(
+        search_results = []
+        for result in results:
+            metadata = result.get('metadata', {})
+            # Try different possible keys for the file path
+            path = metadata.get('relative_path') or metadata.get('path') or metadata.get('file_path') or 'unknown'
+            
+            search_results.append(SearchResultItem(
                 content=result['content'],
                 score=result['score'],
-                document_path=result['metadata'].get('file_path', 'unknown'),
+                document_path=path,
                 chunk_id=str(result['node_id'])
-            )
-            for result in results
-        ]
+            ))
         
         return SearchResponse(
             results=search_results,
@@ -181,3 +184,22 @@ async def get_document_stats(
     except Exception as e:
         logger.error(f"Error getting document stats: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get document statistics")
+
+@router.post("/reindex")
+async def reindex_documents(
+    document_store: DocumentStore = Depends(get_document_store)
+):
+    """
+    Clear and rebuild the entire knowledge base index.
+    """
+    from src.indexing.document_indexer import DocumentIndexer
+    from src.api.dependencies import get_vector_store
+    try:
+        vector_store = get_vector_store()
+        indexer = DocumentIndexer(document_store=document_store, vector_store=vector_store)
+        indexer.index_all_documents(clear_existing=True)
+        return {"status": "success", "message": "Knowledge base rebuilt successfully."}
+    except Exception as e:
+        logger.error(f"Error reindexing: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to rebuild knowledge base: {str(e)}")
+

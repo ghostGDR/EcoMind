@@ -26,9 +26,12 @@ class DocumentIndexer:
         self.vector_store = vector_store
         self._document_count = 0
     
-    def index_all_documents(self) -> Optional[VectorStoreIndex]:
+    def index_all_documents(self, clear_existing: bool = False) -> Optional[VectorStoreIndex]:
         """
         Load documents from store and create vector index.
+        
+        Args:
+            clear_existing: If True, clear the existing index before adding new documents.
         
         Returns:
             VectorStoreIndex object or None if no documents found
@@ -37,6 +40,10 @@ class DocumentIndexer:
             Exception: If document loading or indexing fails
         """
         try:
+            if clear_existing:
+                print("Clearing existing collection...")
+                self.vector_store.clear_collection()
+
             # Load all documents from DocumentStore
             documents = self.document_store.load_all_documents()
             
