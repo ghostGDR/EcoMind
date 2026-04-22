@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from src.api.models import HealthResponse, ErrorResponse
-from src.api.routes import chat, conversations, documents
+from src.api.routes import chat, conversations, documents, config
 import logging
 import os
 from dotenv import load_dotenv
@@ -106,6 +106,7 @@ async def shutdown_event():
 app.include_router(chat.router)
 app.include_router(conversations.router)
 app.include_router(documents.router)
+app.include_router(config.router)
 
 
 # API endpoints

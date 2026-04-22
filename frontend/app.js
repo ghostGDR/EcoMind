@@ -70,6 +70,24 @@ async function deleteConversation(conversationId) {
   return await response.json();
 }
 
+// GET /api/config - Get current configuration
+async function fetchConfig() {
+  const response = await fetch('/api/config/');
+  if (!response.ok) throw new Error('Failed to fetch config');
+  return await response.json();
+}
+
+// POST /api/config - Save configuration
+async function saveConfig(config) {
+  const response = await fetch('/api/config/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(config)
+  });
+  if (!response.ok) throw new Error('Failed to save config');
+  return await response.json();
+}
+
 // POST /api/chat - Send message and handle SSE streaming response
 async function sendMessage(conversationId, message) {
   if (!message.trim()) return;
@@ -225,6 +243,61 @@ function handleMessageInputKeydown(event) {
     event.preventDefault();
     handleSendMessage();
   }
+}
+
+// Handle Settings button click
+async function handleOpenSettings() {
+  try {
+    const config = await fetchConfig();
+    const form = document.getElementById('settings-form');
+    
+    // Populate form with current values
+    form.llm_provider.value = config.llm_provider || 'ollama';
+    form.llm_model.value = config.llm_model || '';
+    form.llm_base_url.value = config.llm_base_url || '';
+    form.llm_api_key.value = config.llm_api_key || '';
+    form.wiki_path.value = config.wiki_path || '';
+    
+    document.getElementById('settings-modal').classList.add('show');
+  } catch (error) {
+    console.error('Error opening settings:', error);
+    alert('获取配置失败');
+  }
+}
+
+// Handle Settings form submission
+async function handleSaveSettings(event) {
+  event.preventDefault();
+  const form = event.target;
+  const config = {
+    llm_provider: form.llm_provider.value,
+    llm_model: form.llm_model.value,
+    llm_base_url: form.llm_base_url.value,
+    llm_api_key: form.llm_api_key.value,
+    wiki_path: form.wiki_path.value
+  };
+  
+  try {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.textContent = '保存中...';
+    submitBtn.disabled = true;
+    
+    await saveConfig(config);
+    
+    alert('配置已保存，系统将重新加载组件。');
+    document.getElementById('settings-modal').classList.remove('show');
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    alert('保存配置失败: ' + error.message);
+  } finally {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.textContent = '保存配置';
+    submitBtn.disabled = false;
+  }
+}
+
+function handleCloseSettings() {
+  document.getElementById('settings-modal').classList.remove('show');
 }
 
 // Load conversation and display messages
@@ -518,6 +591,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('send-btn').addEventListener('click', handleSendMessage);
   document.getElementById('message-input').addEventListener('keydown', handleMessageInputKeydown);
   
+  // Settings event listeners
+  document.getElementById('settings-btn').addEventListener('click', handleOpenSettings);
+  document.querySelector('.close-modal').addEventListener('click', handleCloseSettings);
+  document.getElementById('settings-form').addEventListener('submit', handleSaveSettings);
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', (e) => {
+    const modal = document.getElementById('settings-modal');
+    if (e.target === modal) handleCloseSettings();
+  });
+
   initAutoExpand();
   
   // Load initial data
