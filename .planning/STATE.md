@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-04-22T07:04:42.423Z"
+last_updated: "2026-04-22T07:20:34.788Z"
 progress:
   total_phases: 11
   completed_phases: 4
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 12
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State: Henry - AI 电商专家对话系统
@@ -32,7 +32,7 @@ progress:
 
 **Progress:**
 
-[█████████░] 89%
+[████████░░] 83%
 [█░░░░░░░░░░░░░░░░░░░] 18% (2/11 phases complete)
 
 **Next Action:** `/gsd-plan-phase 3` to plan Semantic Search API
@@ -114,6 +114,11 @@ progress:
 - Truncate content to 200 chars - balances detail vs readability
 - Append citations to answer text - simpler frontend integration than separate UI components
 
+| Phase 05 P01 | 271 | 1 tasks | 2 files |
+
+- Inject history via query string formatting rather than LLM system messages - QueryEngine is model-agnostic
+- Transform source format between QueryEngine and ConversationStore - keeps components decoupled
+
 ### Active Todos
 
 | Todo | Priority | Context | Added |
@@ -134,7 +139,7 @@ progress:
 
 ## Session Continuity
 
-**Last Session:** 2026-04-22T07:04:42.414Z
+**Last Session:** 2026-04-22T07:20:34.780Z
 **Work Completed:**
 
 - Phase 01: Data Layer Foundation (3 plans) ✓
