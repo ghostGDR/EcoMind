@@ -1,0 +1,16 @@
+# .npmignore
+data/
+.venv/
+node_modules/
+tests/
+test_*.py
+.git/
+.env
+*.db
+Formula/
+.planning/
+__pycache__/
+*.pyc
+scratch/
+.env.example
+*.tgz
