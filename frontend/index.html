@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Henry - AI 电商专家</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar: Conversation History -->
+        <aside id="sidebar">
+            <header class="sidebar-header">
+                <h2>对话历史</h2>
+            </header>
+            <button id="new-conversation-btn" class="new-conversation-btn">新对话</button>
+            <div id="conversation-list" class="conversation-list">
+                <!-- Conversation items will be populated by JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main id="chat-container" class="chat-container">
+            <header class="chat-header">
+                <h1>Henry - AI 电商专家</h1>
+            </header>
+            
+            <section id="messages" class="messages">
+                <!-- Chat messages will be populated by JavaScript -->
+            </section>
+
+            <section id="input-area" class="input-area">
+                <textarea 
+                    id="message-input" 
+                    class="message-input" 
+                    placeholder="输入您的问题..."
+                    rows="3"
+                ></textarea>
+                <button id="send-btn" class="send-btn">发送</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
