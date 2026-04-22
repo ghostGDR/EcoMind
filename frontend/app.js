@@ -6,7 +6,8 @@ const state = {
   conversations: [],           // Array of conversation objects
   currentConversationId: null, // Currently selected conversation ID
   currentMessages: [],         // Messages in current conversation
-  isStreaming: false          // Whether chat is currently streaming
+  isStreaming: false,          // Whether chat is currently streaming
+  abortController: null       // AbortController for current stream
 };
 
 function updateState(updates) {
@@ -116,6 +117,10 @@ async function sendMessage(conversationId, message) {
   render();
   
   try {
+    // Create new AbortController for this request
+    const controller = new AbortController();
+    updateState({ abortController: controller });
+    
     // Send POST request to /api/chat/
     const response = await fetch('/api/chat/', {
       method: 'POST',
@@ -123,7 +128,8 @@ async function sendMessage(conversationId, message) {
       body: JSON.stringify({
         conversation_id: conversationId,
         message: message
-      })
+      }),
+      signal: controller.signal
     });
     
     if (!response.ok) {
@@ -158,11 +164,29 @@ async function sendMessage(conversationId, message) {
     await loadConversation(conversationId);
     
   } catch (error) {
-    console.error('Error sending message:', error);
-    henryMessage.content = '抱歉，发送消息时出错了。请重试。';
-    render();
+    if (error.name === 'AbortError') {
+      console.log('Stream aborted by user');
+    } else {
+      console.error('Error sending message:', error);
+      henryMessage.content = '抱歉，发送消息时出错了。请重试。';
+      render();
+    }
   } finally {
-    updateState({ isStreaming: false });
+    updateState({ 
+      isStreaming: false,
+      abortController: null
+    });
+  }
+}
+
+// Handle stopping the response
+function handleStopResponse() {
+  if (state.abortController) {
+    state.abortController.abort();
+    updateState({ 
+      isStreaming: false,
+      abortController: null
+    });
   }
 }
 
@@ -545,15 +569,17 @@ function createMessageElement(msg, isStreaming) {
 function updateInputState() {
   const input = document.getElementById('message-input');
   const sendBtn = document.getElementById('send-btn');
+  const stopBtn = document.getElementById('stop-btn');
   
   if (state.isStreaming) {
     input.disabled = true;
-    sendBtn.disabled = true;
-    sendBtn.style.opacity = '0.5';
+    sendBtn.classList.add('hidden');
+    stopBtn.classList.remove('hidden');
   } else {
     input.disabled = false;
+    sendBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
     sendBtn.disabled = false;
-    sendBtn.style.opacity = '1';
   }
 }
 
@@ -619,6 +645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Attach event listeners
   document.getElementById('new-conversation-btn').addEventListener('click', handleNewConversation);
   document.getElementById('send-btn').addEventListener('click', handleSendMessage);
+  document.getElementById('stop-btn').addEventListener('click', handleStopResponse);
   document.getElementById('message-input').addEventListener('keydown', handleMessageInputKeydown);
   
   // Settings event listeners

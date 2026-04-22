@@ -137,7 +137,8 @@ class SearchEngine:
             return []
         
         # Get semantic search results (retrieve more for keyword boosting)
-        results = self.semantic_search(query, top_k=top_k * 2, min_score=min_score)
+        # We use a lower threshold here to allow keyword boosting to surface relevant results
+        results = self.semantic_search(query, top_k=top_k * 3, min_score=max(0.1, min_score - 0.2))
         
         # Extract keywords from query
         keywords = self._extract_keywords(query)
@@ -164,7 +165,9 @@ class SearchEngine:
         keywords = [
             'ROI', 'CPC', 'CPM', 'CTR', 'conversion', '转化率',
             'TikTok', 'AI', 'ChatGPT', 'Facebook', 'Google',
-            'SEO', 'SEM', 'ROAS', 'LTV', 'CAC'
+            'SEO', 'SEM', 'ROAS', 'LTV', 'CAC', '仿牌', '侵权', 
+            '封号', '封店', '收款', '结汇', '回款', '拒付', '退款',
+            '物流', '专线', '货代', '供应链', 'Dropshipping', '一件代发'
         ]
         
         found = []
