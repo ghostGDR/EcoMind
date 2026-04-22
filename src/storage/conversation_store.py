@@ -166,20 +166,53 @@ class ConversationStore:
         )
     
     def list_conversations(self) -> List[Conversation]:
-        """List all conversations (without messages)"""
+        """List all conversations with message counts"""
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM conversations ORDER BY created_at DESC")
+        cursor.execute("""
+            SELECT c.id, c.title, c.created_at, COUNT(m.id) as message_count
+            FROM conversations c
+            LEFT JOIN messages m ON c.id = m.conversation_id
+            GROUP BY c.id, c.title, c.created_at
+            ORDER BY c.created_at DESC, c.id DESC
+        """)
         rows = cursor.fetchall()
         
-        return [
-            Conversation(
+        conversations = []
+        for row in rows:
+            # Get actual messages for this conversation
+            cursor.execute(
+                "SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at",
+                (row["id"],)
+            )
+            message_rows = cursor.fetchall()
+            
+            messages = []
+            for msg_row in message_rows:
+                # Get sources for this message
+                cursor.execute(
+                    "SELECT * FROM message_sources WHERE message_id = ?",
+                    (msg_row["id"],)
+                )
+                source_rows = cursor.fetchall()
+                sources = [dict(s) for s in source_rows] if source_rows else None
+                
+                messages.append(Message(
+                    id=msg_row["id"],
+                    conversation_id=msg_row["conversation_id"],
+                    role=msg_row["role"],
+                    content=msg_row["content"],
+                    created_at=msg_row["created_at"],
+                    sources=sources
+                ))
+            
+            conversations.append(Conversation(
                 id=row["id"],
                 title=row["title"],
                 created_at=row["created_at"],
-                messages=[]
-            )
-            for row in rows
-        ]
+                messages=messages
+            ))
+        
+        return conversations
     
     def close(self):
         """Close database connection"""
