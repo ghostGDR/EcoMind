@@ -72,8 +72,8 @@ async function sendMessage(conversationId, message) {
   render();
   
   try {
-    // Send POST request to /api/chat
-    const response = await fetch('/api/chat', {
+    // Send POST request to /api/chat/
+    const response = await fetch('/api/chat/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
