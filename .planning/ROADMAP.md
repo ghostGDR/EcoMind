@@ -116,6 +116,25 @@ Plans:
 - [ ] 06-04-PLAN.md — Document management REST endpoints (list, topics, search)
 **UI hint**: yes
 
+### Phase 7: Frontend UI - Chat Interface
+**Goal**: 用户可以在网页界面与 Henry 对话，查看历史记录，看到流式回答和来源引用
+**Depends on**: Phase 6
+**Requirements**: CHAT-01, CHAT-03, SEARCH-02
+**Success Criteria** (what must be TRUE):
+  1. 用户可以在浏览器中访问聊天界面（HTML + CSS）
+  2. 用户可以创建新对话并查看所有历史对话列表
+  3. 用户可以点击对话切换并加载历史消息
+  4. 用户可以输入问题并看到 Henry 的流式回答
+  5. Henry 的回答显示来源文章引用
+  6. 界面使用中文，支持 Enter 发送和 Shift+Enter 换行
+**Plans**: 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Create HTML structure, CSS styling, and FastAPI static file serving
+- [ ] 07-02-PLAN.md — Implement conversation management (create, list, switch)
+- [ ] 07-03-PLAN.md — Implement SSE streaming chat with progressive display and sources
+**UI hint**: yes
+
 ### Phase 8: Frontend UI - Document Management
 **Goal**: 用户可以浏览、上传和编辑知识库文档
 **Depends on**: Phase 6
