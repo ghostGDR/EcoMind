@@ -26,8 +26,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### 文档管理 (Document Management)
 
-- [ ] **DOC-01**: 用户可以浏览所有文章列表
-- [ ] **DOC-02**: 用户可以按主题分类查看文章（TikTok、AI、财务、收款等）
+- [x] **DOC-01
+**: 用户可以浏览所有文章列表
+- [x] **DOC-02
+**: 用户可以按主题分类查看文章（TikTok、AI、财务、收款等）
 - [x] **DOC-03
 **: 用户可以读取完整文章内容，Markdown 正确渲染
 - [x] **DOC-04
