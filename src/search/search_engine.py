@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.storage.vector_store import HenryVectorStore
 from src.storage.document_store import DocumentStore
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, Settings
 
 
 class SearchEngine:
@@ -35,18 +35,16 @@ class SearchEngine:
             self.vector_store.vector_store
         )
         
+        # Disable LLM for query engine (we only need vector retrieval, no synthesis)
+        # This prevents OpenAI API key requirement
+        Settings.llm = None
+        
         # Create query engine with high similarity_top_k for internal retrieval
         # We'll filter and limit results in semantic_search method
-        # Set llm=None to disable LLM synthesis (we only need vector retrieval)
-        from llama_index.core.llms import MockLLM
         self.query_engine = self.index.as_query_engine(
             similarity_top_k=20,
-            response_mode="no_text",  # Return nodes only, no LLM synthesis
-            llm=MockLLM()  # Use mock LLM to avoid API key requirement
+            response_mode="no_text"  # Return nodes only, no LLM synthesis
         )
-        
-        # Add document store for browsing
-        self.document_store = DocumentStore()
     
     def semantic_search(self, query: str, top_k: int = 5, min_score: float = 0.5) -> List[Dict[str, Any]]:
         """Perform semantic search on knowledge base
@@ -161,127 +159,6 @@ class SearchEngine:
                     break  # Only boost once per result
         
         return results
-    
-    def list_all_documents(self) -> List[Dict[str, Any]]:
-        """
-        列出所有文档及其元数据
-        
-        Returns:
-            List of document metadata dicts with keys:
-            - id: str (file path)
-            - title: str (filename without extension)
-            - file_type: str ('markdown' or 'excel')
-            - topic: str (extracted from filename)
-            - size_bytes: int
-            - modified_date: str (ISO format)
-            - relative_path: str
-        """
-        documents = self.document_store.list_documents()
-        
-        result = []
-        for doc_path in documents:
-            metadata = self.document_store.get_document_metadata(doc_path)
-            
-            # Extract topic from filename
-            topic = self._extract_topic_from_filename(doc_path.name)
-            
-            # Convert to user-friendly format
-            result.append({
-                'id': str(doc_path),
-                'title': doc_path.stem,  # filename without extension
-                'file_type': 'markdown' if doc_path.suffix == '.md' else 'excel',
-                'topic': topic,
-                'size_bytes': metadata['size_bytes'],
-                'modified_date': self._format_timestamp(metadata['modified_timestamp']),
-                'relative_path': metadata['relative_path']
-            })
-        
-        return result
-    
-    def list_documents_by_topic(self) -> Dict[str, List[Dict[str, Any]]]:
-        """
-        按主题分组列出文档
-        
-        Returns:
-            Dictionary mapping topic names to lists of document metadata
-            Example: {
-                'TikTok': [{doc1}, {doc2}],
-                'AI工具': [{doc3}],
-                ...
-            }
-        """
-        all_docs = self.list_all_documents()
-        
-        by_topic = {}
-        for doc in all_docs:
-            topic = doc['topic']
-            if topic not in by_topic:
-                by_topic[topic] = []
-            by_topic[topic].append(doc)
-        
-        return by_topic
-    
-    def get_document_stats(self) -> Dict[str, Any]:
-        """
-        获取文档统计信息
-        
-        Returns:
-            Dictionary with document counts and topics
-        """
-        counts = self.document_store.get_document_count()
-        by_topic = self.list_documents_by_topic()
-        
-        return {
-            'total_documents': counts['total'],
-            'markdown_count': counts['markdown'],
-            'excel_count': counts['excel'],
-            'topics': {topic: len(docs) for topic, docs in by_topic.items()},
-            'topic_list': sorted(by_topic.keys())
-        }
-    
-    def _extract_topic_from_filename(self, filename: str) -> str:
-        """
-        从文件名提取主题
-        
-        Args:
-            filename: 文件名（包含扩展名）
-        
-        Returns:
-            主题名称（中文）
-        """
-        filename_lower = filename.lower()
-        
-        # 主题关键词映射
-        if 'tiktok' in filename_lower:
-            return 'TikTok'
-        elif 'ai' in filename_lower or 'chatgpt' in filename_lower or 'gpt' in filename_lower:
-            return 'AI工具'
-        elif '财务' in filename_lower or 'finance' in filename_lower or '税' in filename_lower:
-            return '财务'
-        elif '收款' in filename_lower or 'payment' in filename_lower or '支付' in filename_lower:
-            return '收款'
-        elif '流量' in filename_lower or 'traffic' in filename_lower:
-            return '流量'
-        elif '广告' in filename_lower or 'ads' in filename_lower or 'advertising' in filename_lower:
-            return '广告投放'
-        elif 'facebook' in filename_lower or 'fb' in filename_lower:
-            return 'Facebook'
-        elif 'google' in filename_lower:
-            return 'Google'
-        else:
-            return '其他'
-    
-    def _format_timestamp(self, timestamp: float) -> str:
-        """
-        格式化时间戳为 ISO 格式
-        
-        Args:
-            timestamp: Unix timestamp
-        
-        Returns:
-            ISO format date string (YYYY-MM-DD)
-        """
-        return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
     
     def close(self):
         """Close vector store connection"""
