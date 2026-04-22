@@ -15,6 +15,23 @@ function updateState(updates) {
 }
 
 // ============================================================================
+// Markdown Configuration
+// ============================================================================
+
+if (typeof marked !== 'undefined') {
+  marked.setOptions({
+    highlight: function(code, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+    gfm: true
+  });
+}
+
+// ============================================================================
 // API Client Functions
 // ============================================================================
 
@@ -351,8 +368,15 @@ function renderMessages() {
     
     if (lastElement && lastMsg.role === 'assistant') {
       const contentDiv = lastElement.querySelector('.message-content');
-      if (contentDiv && contentDiv.textContent !== lastMsg.content) {
-        contentDiv.textContent = lastMsg.content;
+      if (contentDiv) {
+        const rendered = typeof marked !== 'undefined' ? marked.parse(lastMsg.content) : escapeHtml(lastMsg.content);
+        if (contentDiv.innerHTML !== rendered) {
+          contentDiv.innerHTML = rendered;
+          // Apply syntax highlighting to new code blocks
+          contentDiv.querySelectorAll('pre code').forEach((block) => {
+            if (typeof hljs !== 'undefined') hljs.highlightElement(block);
+          });
+        }
       }
     }
   }
@@ -375,7 +399,17 @@ function createMessageElement(msg, isStreaming) {
   
   const contentDiv = document.createElement('div');
   contentDiv.className = 'message-content';
-  contentDiv.textContent = msg.content;
+  
+  if (typeof marked !== 'undefined') {
+    contentDiv.innerHTML = marked.parse(msg.content);
+    // Apply syntax highlighting
+    contentDiv.querySelectorAll('pre code').forEach((block) => {
+      if (typeof hljs !== 'undefined') hljs.highlightElement(block);
+    });
+  } else {
+    contentDiv.textContent = msg.content;
+  }
+  
   messageDiv.appendChild(contentDiv);
   
   // Add sources if present
