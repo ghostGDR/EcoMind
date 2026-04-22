@@ -91,7 +91,12 @@ Plans:
   2. 对话历史持久化保存，刷新页面后仍可查看
   3. 长对话不会导致 API 错误（上下文窗口自动管理）
   4. 用户可以查看所有历史对话记录
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Implement ConversationManager with multi-turn context injection
+- [ ] 05-02-PLAN.md — Add context window management with automatic truncation
+- [ ] 05-03-PLAN.md — Add conversation listing and retrieval methods
 
 ### Phase 6: Backend API Layer
 **Goal**: 前端可以通过稳定的 API 接口访问 RAG 引擎和对话管理功能
