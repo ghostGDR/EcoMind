@@ -136,9 +136,49 @@ class TestHybridSearch:
 class TestDocumentBrowsing:
     """Test document listing and topic categorization"""
     
-    def test_list_all_documents(self, search_engine):
+    @pytest.fixture
+    def doc_browser(self):
+        """Create SearchEngine instance for document browsing only (no vector store)"""
+        from src.storage.document_store import DocumentStore
+        
+        # Create a minimal mock object with just document browsing methods
+        class DocumentBrowser:
+            def __init__(self):
+                self.document_store = DocumentStore()
+            
+            def list_all_documents(self):
+                from src.search.search_engine import SearchEngine
+                engine = SearchEngine.__new__(SearchEngine)
+                engine.document_store = self.document_store
+                return engine.list_all_documents()
+            
+            def list_documents_by_topic(self):
+                from src.search.search_engine import SearchEngine
+                engine = SearchEngine.__new__(SearchEngine)
+                engine.document_store = self.document_store
+                return engine.list_documents_by_topic()
+            
+            def get_document_stats(self):
+                from src.search.search_engine import SearchEngine
+                engine = SearchEngine.__new__(SearchEngine)
+                engine.document_store = self.document_store
+                return engine.get_document_stats()
+            
+            def _extract_topic_from_filename(self, filename):
+                from src.search.search_engine import SearchEngine
+                engine = SearchEngine.__new__(SearchEngine)
+                return engine._extract_topic_from_filename(filename)
+            
+            def close(self):
+                pass
+        
+        browser = DocumentBrowser()
+        yield browser
+        browser.close()
+    
+    def test_list_all_documents(self, doc_browser):
         """Test listing all documents returns 21 documents"""
-        docs = search_engine.list_all_documents()
+        docs = doc_browser.list_all_documents()
         
         assert isinstance(docs, list)
         assert len(docs) == 21, f"Expected 21 documents, got {len(docs)}"
@@ -147,9 +187,9 @@ class TestDocumentBrowsing:
         for doc in docs:
             assert isinstance(doc, dict)
     
-    def test_document_metadata_structure(self, search_engine):
+    def test_document_metadata_structure(self, doc_browser):
         """Test each document contains required metadata fields"""
-        docs = search_engine.list_all_documents()
+        docs = doc_browser.list_all_documents()
         
         assert len(docs) > 0, "No documents found"
         
@@ -169,9 +209,9 @@ class TestDocumentBrowsing:
         assert isinstance(doc['modified_date'], str)
         assert isinstance(doc['relative_path'], str)
     
-    def test_list_documents_by_topic(self, search_engine):
+    def test_list_documents_by_topic(self, doc_browser):
         """Test documents are grouped by topic"""
-        by_topic = search_engine.list_documents_by_topic()
+        by_topic = doc_browser.list_documents_by_topic()
         
         assert isinstance(by_topic, dict)
         assert len(by_topic) > 0, "No topics found"
@@ -186,9 +226,9 @@ class TestDocumentBrowsing:
             for doc in docs:
                 assert doc['topic'] == topic
     
-    def test_topic_extraction(self, search_engine):
+    def test_topic_extraction(self, doc_browser):
         """Test topic extraction from filenames"""
-        docs = search_engine.list_all_documents()
+        docs = doc_browser.list_all_documents()
         
         # Find documents with known keywords in filename
         tiktok_docs = [d for d in docs if 'tiktok' in d['title'].lower()]
@@ -201,9 +241,9 @@ class TestDocumentBrowsing:
         for doc in ai_docs:
             assert doc['topic'] == 'AI工具', f"Expected AI工具 topic for {doc['title']}"
     
-    def test_document_stats(self, search_engine):
+    def test_document_stats(self, doc_browser):
         """Test document statistics"""
-        stats = search_engine.get_document_stats()
+        stats = doc_browser.get_document_stats()
         
         assert isinstance(stats, dict)
         assert 'total_documents' in stats
@@ -221,9 +261,9 @@ class TestDocumentBrowsing:
         assert isinstance(stats['topic_list'], list)
         assert len(stats['topic_list']) > 0
     
-    def test_documents_sorted_by_name(self, search_engine):
+    def test_documents_sorted_by_name(self, doc_browser):
         """Test documents are sorted by filename"""
-        docs = search_engine.list_all_documents()
+        docs = doc_browser.list_all_documents()
         
         # Extract titles
         titles = [doc['title'] for doc in docs]
