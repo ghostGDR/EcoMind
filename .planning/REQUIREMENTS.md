@@ -9,7 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### 对话功能 (Conversation)
 
-- [ ] **CHAT-01**: 用户可以在网页界面输入问题并看到 Henry 的回答
+- [x] **CHAT-01
+**: 用户可以在网页界面输入问题并看到 Henry 的回答
 - [ ] **CHAT-02**: 用户可以进行多轮对话，Henry 记住之前的对话内容
 - [ ] **CHAT-03**: 用户可以查看所有历史对话记录
 - [ ] **CHAT-04**: 用户可以在对话中直接教 Henry 新知识（如"记住：TikTok 广告投放最佳时间是晚上 8-10 点"）
@@ -21,7 +22,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **SEARCH-01
 **: Henry 基于语义理解回答问题，不只是关键词匹配
-- [ ] **SEARCH-02**: Henry 的每个回答都引用具体的来源文章和段落
+- [x] **SEARCH-02
+**: Henry 的每个回答都引用具体的来源文章和段落
 - [x] **SEARCH-03
 **: 系统使用混合检索（语义 + 关键词），提升准确度
 - [x] **SEARCH-04
