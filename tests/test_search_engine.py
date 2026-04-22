@@ -131,3 +131,103 @@ class TestHybridSearch:
             # Check that scores are in descending order
             for i in range(len(scores) - 1):
                 assert scores[i] >= scores[i + 1], f"Scores not sorted: {scores[i]} < {scores[i+1]}"
+
+
+class TestDocumentBrowsing:
+    """Test document listing and topic categorization"""
+    
+    def test_list_all_documents(self, search_engine):
+        """Test listing all documents returns 21 documents"""
+        docs = search_engine.list_all_documents()
+        
+        assert isinstance(docs, list)
+        assert len(docs) == 21, f"Expected 21 documents, got {len(docs)}"
+        
+        # Verify each document is a dict
+        for doc in docs:
+            assert isinstance(doc, dict)
+    
+    def test_document_metadata_structure(self, search_engine):
+        """Test each document contains required metadata fields"""
+        docs = search_engine.list_all_documents()
+        
+        assert len(docs) > 0, "No documents found"
+        
+        # Check first document has all required fields
+        doc = docs[0]
+        required_fields = ['id', 'title', 'file_type', 'topic', 'size_bytes', 'modified_date', 'relative_path']
+        
+        for field in required_fields:
+            assert field in doc, f"Missing field: {field}"
+        
+        # Verify field types
+        assert isinstance(doc['id'], str)
+        assert isinstance(doc['title'], str)
+        assert doc['file_type'] in ['markdown', 'excel']
+        assert isinstance(doc['topic'], str)
+        assert isinstance(doc['size_bytes'], int)
+        assert isinstance(doc['modified_date'], str)
+        assert isinstance(doc['relative_path'], str)
+    
+    def test_list_documents_by_topic(self, search_engine):
+        """Test documents are grouped by topic"""
+        by_topic = search_engine.list_documents_by_topic()
+        
+        assert isinstance(by_topic, dict)
+        assert len(by_topic) > 0, "No topics found"
+        
+        # Verify structure
+        for topic, docs in by_topic.items():
+            assert isinstance(topic, str)
+            assert isinstance(docs, list)
+            assert len(docs) > 0
+            
+            # Each doc should have topic field matching the key
+            for doc in docs:
+                assert doc['topic'] == topic
+    
+    def test_topic_extraction(self, search_engine):
+        """Test topic extraction from filenames"""
+        docs = search_engine.list_all_documents()
+        
+        # Find documents with known keywords in filename
+        tiktok_docs = [d for d in docs if 'tiktok' in d['title'].lower()]
+        ai_docs = [d for d in docs if 'ai' in d['title'].lower() or 'gpt' in d['title'].lower()]
+        
+        # Verify topic assignment
+        for doc in tiktok_docs:
+            assert doc['topic'] == 'TikTok', f"Expected TikTok topic for {doc['title']}"
+        
+        for doc in ai_docs:
+            assert doc['topic'] == 'AI工具', f"Expected AI工具 topic for {doc['title']}"
+    
+    def test_document_stats(self, search_engine):
+        """Test document statistics"""
+        stats = search_engine.get_document_stats()
+        
+        assert isinstance(stats, dict)
+        assert 'total_documents' in stats
+        assert 'markdown_count' in stats
+        assert 'excel_count' in stats
+        assert 'topics' in stats
+        assert 'topic_list' in stats
+        
+        # Verify counts
+        assert stats['total_documents'] == 21
+        assert stats['markdown_count'] + stats['excel_count'] == stats['total_documents']
+        
+        # Verify topics structure
+        assert isinstance(stats['topics'], dict)
+        assert isinstance(stats['topic_list'], list)
+        assert len(stats['topic_list']) > 0
+    
+    def test_documents_sorted_by_name(self, search_engine):
+        """Test documents are sorted by filename"""
+        docs = search_engine.list_all_documents()
+        
+        # Extract titles
+        titles = [doc['title'] for doc in docs]
+        
+        # Verify sorted order
+        sorted_titles = sorted(titles)
+        assert titles == sorted_titles, "Documents are not sorted by filename"
