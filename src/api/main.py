@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from src.api.models import HealthResponse, ErrorResponse
 from src.api.routes import chat, conversations, documents
 import logging
@@ -85,15 +86,6 @@ app.include_router(documents.router)
 
 # API endpoints
 
-@app.get("/", response_model=dict)
-async def root():
-    """Root endpoint with API information"""
-    return {
-        "message": "Henry API",
-        "docs": "/docs"
-    }
-
-
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
@@ -101,3 +93,8 @@ async def health_check():
         status="ok",
         service="henry-api"
     )
+
+
+# Mount frontend static files
+# This must be LAST - catch-all route
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
