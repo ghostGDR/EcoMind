@@ -75,7 +75,12 @@ Plans:
   2. 每个答案都引用具体的来源文章和段落
   3. Henry 的回答风格符合电商专家的专业语气
   4. 当知识库中没有相关信息时，系统明确告知用户
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Configure LLM integration and Henry's e-commerce expert persona
+- [ ] 04-02-PLAN.md — Build RAG query engine integrating search with LLM generation
+- [ ] 04-03-PLAN.md — Add citation formatting to reference source articles
 
 ### Phase 5: Conversation Management
 **Goal**: 用户可以进行多轮对话，Henry 记住上下文并保持对话连贯性
