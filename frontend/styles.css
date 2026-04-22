@@ -287,3 +287,98 @@ body {
         max-width: 90%;
     }
 }
+
+/* ============================================================================
+   Conversation List Styling (Plan 07-02)
+   ============================================================================ */
+
+.conversation-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+}
+
+.conversation-meta {
+    font-size: 0.875rem;
+    color: #6b7280; /* Gray */
+}
+
+.empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: #9ca3af; /* Light gray */
+    font-size: 0.875rem;
+}
+
+/* ============================================================================
+   Message Display Styling (Plan 07-02)
+   ============================================================================ */
+
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-user {
+    align-self: flex-end;
+}
+
+.message-henry {
+    align-self: flex-start;
+}
+
+.message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.message-user .message-content {
+    background-color: var(--message-user-bg);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.message-henry .message-content {
+    background-color: var(--message-henry-bg);
+    color: var(--text-color);
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message-sources {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    max-width: fit-content;
+}
+
+/* ============================================================================
+   Responsive Adjustments (Plan 07-02)
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    #sidebar {
+        width: 250px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+}
