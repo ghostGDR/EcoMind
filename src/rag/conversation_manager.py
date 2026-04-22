@@ -18,7 +18,8 @@ class ConversationManager:
     def __init__(
         self,
         query_engine: QueryEngine,
-        conversation_store: ConversationStore
+        conversation_store: ConversationStore,
+        max_history_messages: int = 10
     ):
         """
         Initialize ConversationManager
@@ -26,9 +27,12 @@ class ConversationManager:
         Args:
             query_engine: QueryEngine instance for RAG queries
             conversation_store: ConversationStore instance for persistence
+            max_history_messages: Maximum number of messages to include in context (default: 10)
+                                  Prevents context window overflow in long conversations
         """
         self.query_engine = query_engine
         self.conversation_store = conversation_store
+        self.max_history_messages = max_history_messages
     
     def start_conversation(self, title: str = "新对话") -> int:
         """
@@ -71,18 +75,24 @@ class ConversationManager:
         # Step 2: Retrieve conversation history
         history = conversation.messages
         
-        # Step 3: Format query with history context
-        if history:
+        # Step 3: Truncate history to last N messages (context window management)
+        if len(history) > self.max_history_messages:
+            recent_history = history[-self.max_history_messages:]
+        else:
+            recent_history = history
+        
+        # Step 4: Format query with history context
+        if recent_history:
             # Inject previous Q&A pairs as context
-            formatted_query = self._format_query_with_history(history, user_message)
+            formatted_query = self._format_query_with_history(recent_history, user_message)
         else:
             # First message - no history to inject
             formatted_query = user_message
         
-        # Step 4: Call QueryEngine with formatted query
+        # Step 5: Call QueryEngine with formatted query
         response = self.query_engine.query(formatted_query)
         
-        # Step 5: Persist user message to database
+        # Step 6: Persist user message to database
         self.conversation_store.add_message(
             conversation_id=conversation_id,
             role='user',
@@ -90,10 +100,10 @@ class ConversationManager:
             sources=None
         )
         
-        # Step 6: Transform sources to match ConversationStore format
+        # Step 7: Transform sources to match ConversationStore format
         transformed_sources = self._transform_sources(response.get('sources', []))
         
-        # Step 7: Persist assistant response to database with sources
+        # Step 8: Persist assistant response to database with sources
         self.conversation_store.add_message(
             conversation_id=conversation_id,
             role='assistant',
@@ -101,7 +111,7 @@ class ConversationManager:
             sources=transformed_sources
         )
         
-        # Step 8: Return response with conversation_id
+        # Step 9: Return response with conversation_id
         return {
             'answer': response['answer'],
             'sources': response.get('sources', []),

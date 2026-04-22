@@ -115,31 +115,34 @@ def test_truncation_preserves_most_recent_exchanges(mock_query_engine, conversat
         max_history_messages=10
     )
     
-    # Create conversation with 15 messages (7 Q&A pairs + 1 user message)
+    # Create conversation with 20 messages (10 Q&A pairs)
     conv_id = manager.start_conversation("Very long conversation")
     
-    for i in range(1, 8):
-        manager.send_message(conv_id, f"Question {i}")
+    for i in range(1, 11):
+        manager.send_message(conv_id, f"Question {i:02d}")  # Use zero-padded numbers to avoid substring matches
     
     # Reset mock to track next call
     mock_query_engine.query.reset_mock()
     
-    # 8th exchange - should only include last 10 messages
-    manager.send_message(conv_id, "Question 8")
+    # 11th exchange - should only include last 10 messages (Q06-Q10 and their answers)
+    manager.send_message(conv_id, "Question 11")
     
     last_call_query = mock_query_engine.query.call_args[0][0]
     
-    # Should NOT contain very old messages (Q1, A1, Q2, A2, Q3, A3)
-    assert "Question 1" not in last_call_query
-    assert "Question 2" not in last_call_query
-    assert "Question 3" not in last_call_query
+    # Should NOT contain very old messages (Q01-Q05 and their answers)
+    assert "Question 01" not in last_call_query
+    assert "Question 02" not in last_call_query
+    assert "Question 03" not in last_call_query
+    assert "Question 04" not in last_call_query
+    assert "Question 05" not in last_call_query
     
-    # Should contain last 5 Q&A pairs (Q4-Q7 and their answers)
-    assert "Question 4" in last_call_query
-    assert "Question 5" in last_call_query
-    assert "Question 6" in last_call_query
-    assert "Question 7" in last_call_query
-    assert "Question 8" in last_call_query
+    # Should contain last 5 Q&A pairs (Q06-Q10 and their answers, plus Q11)
+    assert "Question 06" in last_call_query
+    assert "Question 07" in last_call_query
+    assert "Question 08" in last_call_query
+    assert "Question 09" in last_call_query
+    assert "Question 10" in last_call_query
+    assert "Question 11" in last_call_query
 
 
 def test_database_contains_full_history_after_truncation(mock_query_engine, conversation_store):
