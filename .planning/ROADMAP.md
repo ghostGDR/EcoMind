@@ -45,7 +45,10 @@ Plans:
   2. 系统可以读取 Excel 文件内容并提取结构化数据
   3. 文档被智能分块（保持语义完整性，支持中英文混合）
   4. 所有 22 篇文章的向量嵌入已存储在 Qdrant 中
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Build document ingestion pipeline and index all 21 wiki articles
 
 ### Phase 3: Semantic Search Implementation
 **Goal**: 用户可以通过语义理解搜索文档，获得准确的相关内容
