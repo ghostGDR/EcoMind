@@ -29,7 +29,12 @@
   1. Qdrant 向量数据库在本地运行并可以存储/查询向量
   2. SQLite 数据库可以持久化保存对话历史记录
   3. 文档存储接口可以读取 `/Users/a1234/wiki/raw/articles` 目录中的文件
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Initialize Qdrant vector database with LlamaIndex integration
+- [ ] 01-02-PLAN.md — Initialize SQLite database for conversation history
+- [ ] 01-03-PLAN.md — Implement document storage interface for file system access
 
 ### Phase 2: Knowledge Base Indexing
 **Goal**: 用户的 22 篇文章被正确解析、分块并索引到向量数据库
