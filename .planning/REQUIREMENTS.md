@@ -16,7 +16,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CHAT-03
 **: 用户可以查看所有历史对话记录
 - [ ] **CHAT-04**: 用户可以在对话中直接教 Henry 新知识（如"记住：TikTok 广告投放最佳时间是晚上 8-10 点"）
-- [ ] **CHAT-05**: 系统自动管理对话上下文窗口，长对话不会导致 API 错误
+- [x] **CHAT-05
+**: 系统自动管理对话上下文窗口，长对话不会导致 API 错误
 - [x] **CHAT-06
 **: Henry 的回答风格符合电商专家的专业语气
 
