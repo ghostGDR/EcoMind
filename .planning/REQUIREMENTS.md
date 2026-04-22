@@ -71,12 +71,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled during roadmap creation) | | |
+| CHAT-01 | Phase 4, Phase 7 | Pending |
+| CHAT-02 | Phase 5 | Pending |
+| CHAT-03 | Phase 5, Phase 7 | Pending |
+| CHAT-04 | Phase 10 | Pending |
+| CHAT-05 | Phase 5 | Pending |
+| CHAT-06 | Phase 4 | Pending |
+| SEARCH-01 | Phase 3 | Pending |
+| SEARCH-02 | Phase 4, Phase 7 | Pending |
+| SEARCH-03 | Phase 3 | Pending |
+| SEARCH-04 | Phase 3 | Pending |
+| SEARCH-05 | Phase 3 | Pending |
+| DOC-01 | Phase 3, Phase 8 | Pending |
+| DOC-02 | Phase 3, Phase 8 | Pending |
+| DOC-03 | Phase 2, Phase 8 | Pending |
+| DOC-04 | Phase 2, Phase 8 | Pending |
+| DOC-05 | Phase 2 | Pending |
+| DOC-06 | Phase 9 | Pending |
+| DOC-07 | Phase 8 | Pending |
+| LEARN-01 | Phase 10 | Pending |
+| LEARN-02 | Phase 10 | Pending |
+| LEARN-03 | Phase 11 | Pending |
 
 **Coverage:**
-- v1 requirements: 20 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 20 ⚠️
+- v1 requirements: 21 total
+- Mapped to phases: 21 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-22*
